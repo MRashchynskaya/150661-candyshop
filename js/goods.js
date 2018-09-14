@@ -59,7 +59,7 @@ var getRandomIngredients = function () {
   var randomIngredients = '';
   for (var i = 1; i < quantity; i++) {
     randomIngredients += getRandomArrayElement(INGREDIENTS_LIST) + ', ';
-  };
+  }
   randomIngredients += getRandomArrayElement(INGREDIENTS_LIST);
   return randomIngredients;
 };
@@ -116,29 +116,33 @@ var goodsAmountClass = ['card--in-stock', 'card--little', 'card--soon'];
 for (var i = 0; i < goodCards.length; i++) {
   var cardElement = cardTemplate.cloneNode(true);
   var goodsAmount = goodCards[i].amount;
-    if (goodsAmount == 0) {
+  if (goodsAmount === 0) {
     cardElement.classList.remove('card--in-stock');
     cardElement.classList.add(goodsAmountClass[2]);
-    } else if (goodsAmount > 0 && goodsAmount <= 5) { cardElement.classList.remove('card--in-stock'); cardElement.classList.add(goodsAmountClass[1]); }
-
-    cardElement.querySelector('.card__title').textContent = goodCards[i].name;
-    cardElement.querySelector('.card__img').src = goodCards[i].picture;
-    cardElement.querySelector('.card__img').alt = goodCards[i].name;
-    cardElement.querySelector('.card__price').textContent = goodCards[i].price;
-    // содержимое блока card__price должно выглядеть следующим образом:
-    // {{price}} <span class="card__currency">₽</span><span class="card__weight">/ {{weight}} Г</span>;
-
-    var ratingObject = goodCards[i].rating;
-    cardElement.querySelector('.stars__rating').classList.remove('stars__rating--five');
-    cardElement.querySelector('.stars__rating').classList.add(starsRatingClass[ratingObject.value - 1]);
-    cardElement.querySelector('.star__count').textContent = ratingObject.number;
-
-    var nutritionFactsObject = goodCards[i].nutritionFacts;
-    if (nutritionFactsObject.sugar) {
-      cardElement.querySelector('.card__characteristic').textContent = 'Содержит сахар ' + nutritionFactsObject.energy + ' ккал';
-    } else {cardElement.querySelector('.card__characteristic').textContent = 'Без сахара ' + nutritionFactsObject.energy + ' ккал';}
-
-    cardElement.querySelector('.card__composition-list').textContent = nutritionFactsObject.contents;
-
-    catalogCardsElement.appendChild(cardElement);
+  } else if (goodsAmount > 0 && goodsAmount <= 5) {
+    cardElement.classList.remove('card--in-stock'); cardElement.classList.add(goodsAmountClass[1]);
   }
+
+  cardElement.querySelector('.card__title').textContent = goodCards[i].name;
+  cardElement.querySelector('.card__img').src = goodCards[i].picture;
+  cardElement.querySelector('.card__img').alt = goodCards[i].name;
+  cardElement.querySelector('.card__price').textContent = goodCards[i].price;
+  // содержимое блока card__price должно выглядеть следующим образом:
+  // {{price}} <span class="card__currency">₽</span><span class="card__weight">/ {{weight}} Г</span>;
+
+  var ratingObject = goodCards[i].rating;
+  cardElement.querySelector('.stars__rating').classList.remove('stars__rating--five');
+  cardElement.querySelector('.stars__rating').classList.add(starsRatingClass[ratingObject.value - 1]);
+  cardElement.querySelector('.star__count').textContent = ratingObject.number;
+
+  var nutritionFactsObject = goodCards[i].nutritionFacts;
+  if (nutritionFactsObject.sugar) {
+    cardElement.querySelector('.card__characteristic').textContent = 'Содержит сахар ' + nutritionFactsObject.energy + ' ккал';
+  } else {
+    cardElement.querySelector('.card__characteristic').textContent = 'Без сахара ' + nutritionFactsObject.energy + ' ккал';
+  }
+
+  cardElement.querySelector('.card__composition-list').textContent = nutritionFactsObject.contents;
+
+  catalogCardsElement.appendChild(cardElement);
+}
