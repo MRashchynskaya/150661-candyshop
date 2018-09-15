@@ -157,6 +157,7 @@ for (var i = 0; i < goodsCards.length; i++) {
 
   fragment.appendChild(cardElement);
 }
+
 catalogCardsElement.appendChild(fragment);
 
 // Убераем у блока catalog__cards класс catalog__cards--load
@@ -186,6 +187,6 @@ for (var i = 0; i < goodsInCart.length; i++) {
 }
 goodsCardsElement.appendChild(fragmentCart);
 
-// Удалить у блока goods__cards класс goods__cards--empty и скрыть блок goods__card-empty
+// Удаляем у блока goods__cards класс goods__cards--empty и скрываем блок goods__card-empty
 document.querySelector('.goods__cards').classList.remove('goods__cards--empty');
 document.querySelector('.goods__card-empty').classList.add('visually-hidden');
