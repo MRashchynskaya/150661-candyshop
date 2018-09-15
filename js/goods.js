@@ -97,10 +97,10 @@ var randomGoodsNames = shuffleArray(GOODS_NAMES);
 var randomPictureUrls = shuffleArray(PICTURES_URLS);
 
 // создание объекта для карточки товара
-var createObjectCard = function (goods_name, picture_url) {
+var createObjectCard = function (goodsName, pictureUrl) {
   var objectCard = {
-    name: goods_name,
-    picture: picture_url,
+    name: goodsName,
+    picture: pictureUrl,
     amount: getRandomNumber(Amount),
     price: getRandomNumber(Price),
     weight: getRandomNumber(Weight),
@@ -151,7 +151,8 @@ for (var i = 0; i < goodsCards.length; i++) {
   cardElement.querySelector('.star__count').textContent = ratingObject.number;
 
   var nutritionFactsObject = goodsCards[i].nutritionFacts;
-  nutritionFactsObject.sugar ? cardElement.querySelector('.card__characteristic').textContent = 'Содержит сахар ' + nutritionFactsObject.energy + ' ккал' : cardElement.querySelector('.card__characteristic').textContent = 'Без сахара ' + nutritionFactsObject.energy + ' ккал';
+  var containSugar = nutritionFactsObject.sugar ? 'Содержит сахар ' : 'Без сахара ';
+  cardElement.querySelector('.card__characteristic').textContent = containSugar + nutritionFactsObject.energy + ' ккал';
 
   cardElement.querySelector('.card__composition-list').textContent = nutritionFactsObject.contents;
 
@@ -168,8 +169,8 @@ document.querySelector('.catalog__load').classList.add('visually-hidden');
 // Раздел ТОВАРЫ В КОРЗИНЕ
 // создание массива с товарами в корзине
 var createGoodsInCart = function (addedInCart) {
-  for (var i = 0; i < addedInCart; i++) {
-    goodsInCart.push(goodsCards[i]);
+  for (var j = 0; j < addedInCart; j++) {
+    goodsInCart.push(goodsCards[j]);
   }
   return goodsInCart;
 };
@@ -177,12 +178,12 @@ createGoodsInCart(3);
 
 // Клонируем шаблон товаров в корзине, заполняем данными и добавляем на страницу
 var fragmentCart = document.createDocumentFragment();
-for (var i = 0; i < goodsInCart.length; i++) {
+for (var j = 0; j < goodsInCart.length; j++) {
   var inCartElement = inCartTemplate.cloneNode(true);
-  inCartElement.querySelector('.card-order__title').textContent = goodsInCart[i].name;
-  inCartElement.querySelector('.card-order__img').src = goodsInCart[i].picture;
-  inCartElement.querySelector('.card-order__img').alt = goodsInCart[i].name;
-  inCartElement.querySelector('.card-order__price').textContent = goodsCards[i].price + ' ₽';
+  inCartElement.querySelector('.card-order__title').textContent = goodsInCart[j].name;
+  inCartElement.querySelector('.card-order__img').src = goodsInCart[j].picture;
+  inCartElement.querySelector('.card-order__img').alt = goodsInCart[j].name;
+  inCartElement.querySelector('.card-order__price').textContent = goodsCards[j].price + ' ₽';
   fragmentCart.appendChild(inCartElement);
 }
 goodsCardsElement.appendChild(fragmentCart);
