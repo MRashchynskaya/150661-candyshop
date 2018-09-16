@@ -5,6 +5,7 @@ var GOODS_NAMES = ['Чесночные сливки', 'Огуречный пед
 ];
 var INGREDIENTS_LIST = ['молоко', 'сливки', 'вода', 'пищевой краситель', 'патока', 'ароматизатор бекона', 'ароматизатор свинца', 'ароматизатор дуба, идентичный натуральному', 'ароматизатор картофеля', 'лимонная кислота', 'загуститель', 'эмульгатор', 'консервант: сорбат калия', 'посолочная смесь: соль, нитрит натрия', 'ксилит', 'карбамид', 'вилларибо', 'виллабаджо'];
 var PICTURES_URLS = ['img/cards/gum-cedar.jpg', 'img/cards/gum-chile.jpg', 'img/cards/gum-eggplant.jpg', 'img/cards/gum-mustard.jpg', 'img/cards/gum-portwine.jpg', 'img/cards/gum-wasabi.jpg', 'img/cards/ice-cucumber.jpg', 'img/cards/ice-eggplant.jpg', 'img/cards/ice-garlic.jpg', 'img/cards/ice-italian.jpg', 'img/cards/ice-mushroom.jpg', 'img/cards/ice-pig.jpg', 'img/cards/marmalade-beer.jpg', 'img/cards/marmalade-caviar.jpg', 'img/cards/marmalade-corn.jpg', 'img/cards/marmalade-new-year.jpg', 'img/cards/marmalade-sour.jpg', 'img/cards/marshmallow-bacon.jpg', 'img/cards/marshmallow-beer.jpg', 'img/cards/marshmallow-shrimp.jpg', 'img/cards/marshmallow-spicy.jpg', 'img/cards/marshmallow-wine.jpg', 'img/cards/soda-bacon.jpg', 'img/cards/soda-celery.jpg', 'img/cards/soda-cob.jpg', 'img/cards/soda-garlic.jpg', 'img/cards/soda-peanut-grapes.jpg', 'img/cards/soda-russian.jpg'];
+var COUNT_ITEMS_IN_CART = 3;
 
 // Мин и макс значения параметров товара
 var Amount = {
@@ -43,8 +44,6 @@ var ingredientsMinMax = {
 
 // Массив классов соответствующих value рейтинга
 var starsRatingClass = ['stars__rating--one', 'stars__rating--two', 'stars__rating--three', 'stars__rating--four', 'stars__rating--five'];
-// Массив классов соответствующих количеству товара (amount)
-var goodsAmountClass = ['card--in-stock', 'card--little', 'card--soon'];
 // переменная-массив для объектов - карточек товаров
 var goodsCards = [];
 // переменная-массив для объектов - товаров в корзине
@@ -55,12 +54,16 @@ var catalogCardsElement = document.querySelector('.catalog__cards');
 var cardTemplate = document.querySelector('#card')
   .content
   .querySelector('.catalog__card');
+// фрагмент, в который будем поочередно добавлять готовые карточки товаров (затем фрагмент один раз добавляется на страницу)
+var fragment = document.createDocumentFragment();
 // находим шаблон для товаров в корзине
 var inCartTemplate = document.querySelector('#card-order')
   .content
   .querySelector('.goods_card');
 // найдём элемент, в который мы будем вставлять карточки товаров в корзине
 var goodsCardsElement = document.querySelector('.goods__cards');
+// фрагмент, в который будем поочередно добавлять готовые товары в корзине (затем фрагмент один раз добавляется на страницу)
+var fragmentCart = document.createDocumentFragment();
 
 // функция генерации случайного номера элемента массива
 var getRandomArrayElement = function (arr) {
@@ -98,7 +101,7 @@ var randomPictureUrls = shuffleArray(PICTURES_URLS);
 
 // создание объекта для карточки товара
 var createObjectCard = function (goodsName, pictureUrl) {
-  var objectCard = {
+  return {
     name: goodsName,
     picture: pictureUrl,
     amount: getRandomNumber(Amount),
@@ -114,10 +117,9 @@ var createObjectCard = function (goodsName, pictureUrl) {
       contents: getRandomIngredients(),
     }
   };
-  return objectCard;
 };
 
-// создание массива с карточками товаров
+// создание массива с объектами - карточками товаров
 var createGoodsCards = function (arr) {
   for (var i = 0; i < arr.length; i++) {
     var goodCard = createObjectCard(randomGoodsNames[i], randomPictureUrls[i]);
@@ -127,38 +129,43 @@ var createGoodsCards = function (arr) {
 };
 createGoodsCards(GOODS_NAMES);
 
-// Клонируем шаблон, заполняем данными и добавляем на страницу
-var fragment = document.createDocumentFragment();
-for (var i = 0; i < goodsCards.length; i++) {
+// Функция создания DOM-элемента - карточки товара
+var createCatalogCard = function (goodCard) {
   var cardElement = cardTemplate.cloneNode(true);
-  var goodsAmount = goodsCards[i].amount;
+  var goodsAmount = goodCard.amount;
   if (goodsAmount === 0) {
     cardElement.classList.remove('card--in-stock');
-    cardElement.classList.add(goodsAmountClass[2]);
+    cardElement.classList.add('card--soon');
   } else if (goodsAmount > 0 && goodsAmount <= 5) {
-    cardElement.classList.remove('card--in-stock'); cardElement.classList.add(goodsAmountClass[1]);
+    cardElement.classList.remove('card--in-stock');
+    cardElement.classList.add('card--little');
   }
-
-  cardElement.querySelector('.card__title').textContent = goodsCards[i].name;
-  cardElement.querySelector('.card__img').src = goodsCards[i].picture;
-  cardElement.querySelector('.card__img').alt = goodsCards[i].name;
-  cardElement.querySelector('.card__price-value').textContent = goodsCards[i].price + ' ';
-  cardElement.querySelector('.card__weight').textContent = ' ' + goodsCards[i].weight + ' Г';
-
-  var ratingObject = goodsCards[i].rating;
+  cardElement.querySelector('.card__title').textContent = goodCard.name;
+  cardElement.querySelector('.card__img').src = goodCard.picture;
+  cardElement.querySelector('.card__img').alt = goodCard.name;
+  cardElement.querySelector('.card__price-value').textContent = goodCard.price + ' ';
+  cardElement.querySelector('.card__weight').textContent = ' ' + goodCard.weight + ' Г';
+  var ratingObject = goodCard.rating;
   cardElement.querySelector('.stars__rating').classList.remove('stars__rating--five');
   cardElement.querySelector('.stars__rating').classList.add(starsRatingClass[ratingObject.value - 1]);
   cardElement.querySelector('.star__count').textContent = ratingObject.number;
-
-  var nutritionFactsObject = goodsCards[i].nutritionFacts;
+  var nutritionFactsObject = goodCard.nutritionFacts;
   var containSugar = nutritionFactsObject.sugar ? 'Содержит сахар ' : 'Без сахара ';
   cardElement.querySelector('.card__characteristic').textContent = containSugar + nutritionFactsObject.energy + ' ккал';
-
   cardElement.querySelector('.card__composition-list').textContent = nutritionFactsObject.contents;
+  return cardElement;
+};
 
-  fragment.appendChild(cardElement);
-}
+// Клонируем карточки, заполняем данными (вызываем createAllCards в цикле) и добавляем все созданные карточки во фрагмент
+var createAllCards = function (arr) {
+  for (var i = 0; i < arr.length; i++) {
+    fragment.appendChild(createCatalogCard(arr[i]));
+  }
+  return fragment;
+};
 
+// Вызываем функцию создания всех карточек, затем добавляем фрагмент с готовыми карточками на страницу
+createAllCards(goodsCards);
 catalogCardsElement.appendChild(fragment);
 
 // Убераем у блока catalog__cards класс catalog__cards--load
@@ -174,18 +181,26 @@ var createGoodsInCart = function (addedInCart) {
   }
   return goodsInCart;
 };
-createGoodsInCart(3);
+createGoodsInCart(COUNT_ITEMS_IN_CART);
+
+// Функция создания DOM-элемента - товара в корзине
+var createGoodInCart = function (goodInCart) {
+  var inCartElement = inCartTemplate.cloneNode(true);
+  inCartElement.querySelector('.card-order__title').textContent = goodInCart.name;
+  inCartElement.querySelector('.card-order__img').src = goodInCart.picture;
+  inCartElement.querySelector('.card-order__img').alt = goodInCart.name;
+  inCartElement.querySelector('.card-order__price').textContent = goodInCart.price + ' ₽';
+  return inCartElement;
+};
 
 // Клонируем шаблон товаров в корзине, заполняем данными и добавляем на страницу
-var fragmentCart = document.createDocumentFragment();
-for (var j = 0; j < goodsInCart.length; j++) {
-  var inCartElement = inCartTemplate.cloneNode(true);
-  inCartElement.querySelector('.card-order__title').textContent = goodsInCart[j].name;
-  inCartElement.querySelector('.card-order__img').src = goodsInCart[j].picture;
-  inCartElement.querySelector('.card-order__img').alt = goodsInCart[j].name;
-  inCartElement.querySelector('.card-order__price').textContent = goodsCards[j].price + ' ₽';
-  fragmentCart.appendChild(inCartElement);
-}
+var createAllInCart = function (arr) {
+  for (var j = 0; j < arr.length; j++) {
+    fragmentCart.appendChild(createGoodInCart(arr[j]));
+  }
+  return fragmentCart;
+};
+createAllInCart(goodsInCart);
 goodsCardsElement.appendChild(fragmentCart);
 
 // Удаляем у блока goods__cards класс goods__cards--empty и скрываем блок goods__card-empty
