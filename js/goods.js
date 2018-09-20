@@ -226,7 +226,7 @@ var renderCardForCart = function (e) {
   var currentBtn = e.target;
   var currentCard = currentBtn.closest('.catalog__card');
   var currentCardIndex = currentCard.dataset.cardindex;
-  var productInCart = Object.assign({ orderedAmount: 1 }, goodsCards[currentCardIndex]);
+  var productInCart = Object.assign({orderedAmount: 1}, goodsCards[currentCardIndex]);
   delete productInCart.amount;
   delete productInCart.weight;
   delete productInCart.rating;
