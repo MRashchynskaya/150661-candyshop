@@ -51,7 +51,7 @@ var starsRatingClass = ['stars__rating--one', 'stars__rating--two', 'stars__rati
 // переменная-массив для объектов - карточек товаров
 var goodsCards = [];
 // переменная-массив для объектов - товаров в корзине
-var goodsInCart = [];
+var cart = [];
 // найдём элемент, в который мы будем вставлять карточки товаров
 var catalogCardsElement = document.querySelector('.catalog__cards');
 // находим шаблон для карточки товара
@@ -100,7 +100,7 @@ randomGoodsNames = shuffleArray(GOODS_NAMES);
 randomPictureUrls = shuffleArray(PICTURES_URLS);
 
 // создание объекта для карточки товара
-var createObjectCard = function (goodsName, pictureUrl) {
+var createObjectCard = function (goodsName, pictureUrl, index) {
   return {
     name: goodsName,
     picture: pictureUrl,
@@ -115,14 +115,15 @@ var createObjectCard = function (goodsName, pictureUrl) {
       sugar: getRandomArrayElement(nutritionFacts.sugar),
       energy: getRandomNumber(nutritionFacts.energy),
       contents: getRandomIngredients(),
-    }
+    },
+    cardIndex: index,
   };
 };
 
 // функция создания массива с объектами - карточками товаров
 var createGoodsCards = function (arr) {
   for (var i = 0; i < arr.length; i++) {
-    var goodsCard = createObjectCard(randomGoodsNames[i], randomPictureUrls[i]);
+    var goodsCard = createObjectCard(randomGoodsNames[i], randomPictureUrls[i], i);
     goodsCards.push(goodsCard);
   }
   return goodsCards;
@@ -152,6 +153,8 @@ var createCatalogCard = function (goodsCard) {
   var containSugar = nutritionFactsObject.sugar ? 'Содержит сахар ' : 'Без сахара ';
   cardElement.querySelector('.card__characteristic').textContent = containSugar + nutritionFactsObject.energy + ' ккал';
   cardElement.querySelector('.card__composition-list').textContent = nutritionFactsObject.contents;
+  // cardElement.dataset.cardIndex = goodsCard.cardIndex;
+  cardElement.setAttribute('data-cardindex', goodsCard.cardIndex);
   return cardElement;
 };
 
@@ -164,45 +167,117 @@ var createAllCards = function (arr) {
   return fragment;
 };
 
-// ТОВАРЫ В КОРЗИНЕ
-// создание массива с товарами в корзине
-var createGoodsInCart = function (addedInCart) {
-  for (var j = 0; j < addedInCart; j++) {
-    goodsInCart.push(goodsCards[j]);
-  }
-  return goodsInCart;
-};
-
-// Функция создания DOM-элемента - товара в корзине
-var createGoodInCart = function (goodInCart) {
-  var inCartElement = inCartTemplate.cloneNode(true);
-  inCartElement.querySelector('.card-order__title').textContent = goodInCart.name;
-  inCartElement.querySelector('.card-order__img').src = goodInCart.picture;
-  inCartElement.querySelector('.card-order__img').alt = goodInCart.name;
-  inCartElement.querySelector('.card-order__price').textContent = goodInCart.price + ' ₽';
-  return inCartElement;
-};
-
-// Клонируем шаблон товаров в корзине, заполняем данными
-var createAllInCart = function (arr) {
-  var fragmentCart = document.createDocumentFragment(); // фрагмент, в который будем поочередно добавлять готовые товары в корзине (затем фрагмент один раз добавляется на страницу)
-  for (var j = 0; j < arr.length; j++) {
-    fragmentCart.appendChild(createGoodInCart(arr[j]));
-  }
-  return fragmentCart;
-};
-
-// Вызываем функцию создания всех карточек, затем добавляем фрагмент с готовыми карточками на страницу
 createGoodsCards(GOODS_NAMES);
 catalogCardsElement.appendChild(createAllCards(goodsCards));
-// Вызываем функцию создания товаров в корзине, затем добавляем фрагмент с товарами в корзине на страницу
-createGoodsInCart(COUNT_ITEMS_IN_CART);
-goodsCardsElement.appendChild(createAllInCart(goodsInCart));
+
+// ТОВАРЫ В КОРЗИНЕ
+// Новый алгоритм:
+// 1. В карточки товаров добавляем дата атрибут содержащий индекс в массиве (КАК???)
+// 2. При клике на "добавить" клонируем объект из массива карточек и добавляем его в массив "в корзине";
+// добавляем новое свойство - кол-во в корзине (orderedAmount);
+// удаляем ненужные свойства: amount, weight, rating, nutritionFacts.
+// 3. Условие: Если объект (товар) уже есть в массиве "корзина", то меняется только свойство "orderedAmount"
+
+
+
+// старый вариант добавления товаров в массив корзины
+// var createGoodsInCart = function (addedInCart) {
+//   for (var j = 0; j < addedInCart; j++) {
+//     cart.push(goodsCards[j]);
+//   }
+//   return cart;
+// };
+
+
+
+// Старый способ: Создаем фрагмент со всеми DOM элементами товарами в корзине
+// var createAllInCart = function (arr) {
+//   var fragmentCart = document.createDocumentFragment(); // фрагмент, в который будем поочередно добавлять готовые товары в корзине (затем фрагмент один раз добавляется на страницу)
+//   for (var j = 0; j < arr.length; j++) {
+//     fragmentCart.appendChild(createGoodInCart(arr[j]));
+//   }
+//   return fragmentCart;
+// };
+
+// Вызываем функцию создания всех карточек, затем добавляем фрагмент с готовыми карточками на страницу
+
 
 // Убераем у блока catalog__cards класс catalog__cards--load
 document.querySelector('.catalog__cards').classList.remove('catalog__cards--load');
 // Скрываем при помощи класса visually-hidden блок catalog__load
 document.querySelector('.catalog__load').classList.add('visually-hidden');
-// Удаляем у блока goods__cards класс goods__cards--empty и скрываем блок goods__card-empty
-document.querySelector('.goods__cards').classList.remove('goods__cards--empty');
-document.querySelector('.goods__card-empty').classList.add('visually-hidden');
+
+
+// При нажатии на кнопку избранного .card__btn-favorite в карточке товара, этой кнопке должен добавляться класс card__btn-favorite--selected, который помечал бы её как избранную
+
+var btnFavProd = document.querySelectorAll('.card__btn-favorite');
+
+var addFavProd = function (e) {
+  e.preventDefault();
+  var currentBtn = e.target;
+  currentBtn.classList.toggle('card__btn-favorite--selected');
+};
+
+for (var j = 0; j < btnFavProd.length; j++) {
+  btnFavProd[j].addEventListener('click', addFavProd);
+}
+
+// Находим ВСЕ кнопки "Добавить в корзину"
+var btnAddToCart = document.querySelectorAll('.card__btn');
+
+// функция удаления из корзины
+var deleteCardFromCart = function (e) {
+  e.preventDefault();
+  var currentBtn = e.target;
+  var cardToDelete = currentBtn.closest('.card-order');
+  var deleteCardIndex = cardToDelete.dataset.cardindex;
+  goodsCardsElement.removeChild(cardToDelete);
+  cart.splice(deleteCardIndex, 1);
+  if (cart.length === 0) {
+    document.querySelector('.goods__cards').classList.add('goods__cards--empty');
+    document.querySelector('.goods__card-empty').classList.remove('visually-hidden');
+  }
+  return cart;
+};
+
+// Находим ВСЕ кнопки "Удалить товар" и навешиваем события
+var createDeleteEvent = function () {
+  var btnDeleteFromCart = document.querySelectorAll('.card-order__close');
+  for (var i = 0; i < btnDeleteFromCart.length; i++) {
+    btnDeleteFromCart[i].addEventListener('click', deleteCardFromCart);
+  }
+};
+
+var renderCardForCart = function (e) {
+  e.preventDefault();
+  var currentBtn = e.target;
+  var currentCard = currentBtn.closest('.catalog__card');
+  var currentCardIndex = currentCard.dataset.cardindex;
+  var productInCart = Object.assign({ orderedAmount: 1 }, goodsCards[currentCardIndex]);
+  delete productInCart.amount;
+  delete productInCart.weight;
+  delete productInCart.rating;
+  delete productInCart.nutritionFacts;
+  var inCartElement = inCartTemplate.cloneNode(true);
+  inCartElement.querySelector('.card-order__title').textContent = productInCart.name;
+  inCartElement.querySelector('.card-order__img').src = productInCart.picture;
+  inCartElement.querySelector('.card-order__img').alt = productInCart.name;
+  inCartElement.querySelector('.card-order__price').textContent = productInCart.price + ' ₽';
+  inCartElement.querySelector('.card-order__count').value = productInCart.orderedAmount;
+  goodsCardsElement.appendChild(inCartElement);
+  cart.push(productInCart);
+  createDeleteEvent();
+  // Удаляем у блока goods__cards класс goods__cards--empty и скрываем блок goods__card-empty
+  document.querySelector('.goods__cards').classList.remove('goods__cards--empty');
+  document.querySelector('.goods__card-empty').classList.add('visually-hidden');
+  return cart;
+};
+
+// Проверка массива корзины на наличие товара и добавление объекта, если его не было
+// тут добавить код...
+
+
+// обработчик события на кнопку "добавить в корзину"
+for (var i = 0; i < btnAddToCart.length; i++) {
+  btnAddToCart[i].addEventListener('click', renderCardForCart);
+}
