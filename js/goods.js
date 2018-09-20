@@ -5,8 +5,6 @@ var GOODS_NAMES = ['Чесночные сливки', 'Огуречный пед
 ];
 var INGREDIENTS_LIST = ['молоко', 'сливки', 'вода', 'пищевой краситель', 'патока', 'ароматизатор бекона', 'ароматизатор свинца', 'ароматизатор дуба, идентичный натуральному', 'ароматизатор картофеля', 'лимонная кислота', 'загуститель', 'эмульгатор', 'консервант: сорбат калия', 'посолочная смесь: соль, нитрит натрия', 'ксилит', 'карбамид', 'вилларибо', 'виллабаджо'];
 var PICTURES_URLS = ['img/cards/gum-cedar.jpg', 'img/cards/gum-chile.jpg', 'img/cards/gum-eggplant.jpg', 'img/cards/gum-mustard.jpg', 'img/cards/gum-portwine.jpg', 'img/cards/gum-wasabi.jpg', 'img/cards/ice-cucumber.jpg', 'img/cards/ice-eggplant.jpg', 'img/cards/ice-garlic.jpg', 'img/cards/ice-italian.jpg', 'img/cards/ice-mushroom.jpg', 'img/cards/ice-pig.jpg', 'img/cards/marmalade-beer.jpg', 'img/cards/marmalade-caviar.jpg', 'img/cards/marmalade-corn.jpg', 'img/cards/marmalade-new-year.jpg', 'img/cards/marmalade-sour.jpg', 'img/cards/marshmallow-bacon.jpg', 'img/cards/marshmallow-beer.jpg', 'img/cards/marshmallow-shrimp.jpg', 'img/cards/marshmallow-spicy.jpg', 'img/cards/marshmallow-wine.jpg', 'img/cards/soda-bacon.jpg', 'img/cards/soda-celery.jpg', 'img/cards/soda-cob.jpg', 'img/cards/soda-garlic.jpg', 'img/cards/soda-peanut-grapes.jpg', 'img/cards/soda-russian.jpg'];
-// Количество товаров в корзине
-var COUNT_ITEMS_IN_CART = 3;
 // Перменные для случайно перемешанных массивов
 var randomGoodsNames = [];
 var randomPictureUrls = [];
@@ -178,35 +176,10 @@ catalogCardsElement.appendChild(createAllCards(goodsCards));
 // удаляем ненужные свойства: amount, weight, rating, nutritionFacts.
 // 3. Условие: Если объект (товар) уже есть в массиве "корзина", то меняется только свойство "orderedAmount"
 
-
-
-// старый вариант добавления товаров в массив корзины
-// var createGoodsInCart = function (addedInCart) {
-//   for (var j = 0; j < addedInCart; j++) {
-//     cart.push(goodsCards[j]);
-//   }
-//   return cart;
-// };
-
-
-
-// Старый способ: Создаем фрагмент со всеми DOM элементами товарами в корзине
-// var createAllInCart = function (arr) {
-//   var fragmentCart = document.createDocumentFragment(); // фрагмент, в который будем поочередно добавлять готовые товары в корзине (затем фрагмент один раз добавляется на страницу)
-//   for (var j = 0; j < arr.length; j++) {
-//     fragmentCart.appendChild(createGoodInCart(arr[j]));
-//   }
-//   return fragmentCart;
-// };
-
-// Вызываем функцию создания всех карточек, затем добавляем фрагмент с готовыми карточками на страницу
-
-
 // Убераем у блока catalog__cards класс catalog__cards--load
 document.querySelector('.catalog__cards').classList.remove('catalog__cards--load');
 // Скрываем при помощи класса visually-hidden блок catalog__load
 document.querySelector('.catalog__load').classList.add('visually-hidden');
-
 
 // При нажатии на кнопку избранного .card__btn-favorite в карточке товара, этой кнопке должен добавляться класс card__btn-favorite--selected, который помечал бы её как избранную
 
