@@ -62,6 +62,8 @@ var inCartTemplate = document.querySelector('#card-order')
   .querySelector('.goods_card');
 // найдём элемент, в который мы будем вставлять карточки товаров в корзине
 var goodsCardsElement = document.querySelector('.goods__cards');
+// Блок корзина в хедере страницы
+var headerCart = document.querySelector('.main-header__basket');
 
 // функция генерации случайного номера элемента массива
 var getRandomArrayElement = function (arr) {
@@ -114,7 +116,7 @@ var createObjectCard = function (goodsName, pictureUrl, index) {
       energy: getRandomNumber(nutritionFacts.energy),
       contents: getRandomIngredients(),
     },
-    cardIndex: index,
+    cardindex: index,
   };
 };
 
@@ -151,8 +153,9 @@ var createCatalogCard = function (goodsCard) {
   var containSugar = nutritionFactsObject.sugar ? 'Содержит сахар ' : 'Без сахара ';
   cardElement.querySelector('.card__characteristic').textContent = containSugar + nutritionFactsObject.energy + ' ккал';
   cardElement.querySelector('.card__composition-list').textContent = nutritionFactsObject.contents;
-  // cardElement.dataset.cardIndex = goodsCard.cardIndex;
-  cardElement.setAttribute('data-cardindex', goodsCard.cardIndex);
+  cardElement.dataset.cardindex = goodsCard.cardindex;
+  // cardElement.setAttribute('data-cardindex', goodsCard.cardindex);
+  goodsCard.elem = cardElement;
   return cardElement;
 };
 
@@ -169,8 +172,8 @@ createGoodsCards(GOODS_NAMES);
 catalogCardsElement.appendChild(createAllCards(goodsCards));
 
 // ТОВАРЫ В КОРЗИНЕ
-// Новый алгоритм:
-// 1. В карточки товаров добавляем дата атрибут содержащий индекс в массиве (КАК???)
+// алгоритм:
+// 1. В карточки товаров добавляем дата атрибут содержащий индекс в массиве
 // 2. При клике на "добавить" клонируем объект из массива карточек и добавляем его в массив "в корзине";
 // добавляем новое свойство - кол-во в корзине (orderedAmount);
 // удаляем ненужные свойства: amount, weight, rating, nutritionFacts.
@@ -203,12 +206,24 @@ var deleteCardFromCart = function (e) {
   e.preventDefault();
   var currentBtn = e.target;
   var cardToDelete = currentBtn.closest('.card-order');
-  var deleteCardIndex = cardToDelete.dataset.cardindex;
+  var deleteCardIndex = Number(cardToDelete.dataset.cardindex);
   goodsCardsElement.removeChild(cardToDelete);
-  cart.splice(deleteCardIndex, 1);
+  for (var i = 0; i < cart.length; i++) {
+    if (cart[i].cardindex === deleteCardIndex) {
+      var amountToDelete = cart[i].amount;
+      cart.splice(i, 1);
+    }
+  }
+  for (var k = 0; k < goodsCards.length; k++) {
+    if (goodsCards[k].cardindex === deleteCardIndex) {
+      goodsCards[k].amount = amountToDelete;
+    }
+  }
+  headerCart.textContent = 'В корзине ' + cart.length + ' товаров';
   if (cart.length === 0) {
     document.querySelector('.goods__cards').classList.add('goods__cards--empty');
     document.querySelector('.goods__card-empty').classList.remove('visually-hidden');
+    headerCart.textContent = 'В корзине ничего нет';
   }
   return cart;
 };
@@ -221,36 +236,78 @@ var createDeleteEvent = function () {
   }
 };
 
-var renderCardForCart = function (e) {
+// проверка наличия товара и наличия его в корзине
+var checkIsInStock = function (e) {
   e.preventDefault();
   var currentBtn = e.target;
   var currentCard = currentBtn.closest('.catalog__card');
-  var currentCardIndex = currentCard.dataset.cardindex;
-  var productInCart = Object.assign({orderedAmount: 1}, goodsCards[currentCardIndex]);
-  delete productInCart.amount;
-  delete productInCart.weight;
-  delete productInCart.rating;
-  delete productInCart.nutritionFacts;
-  var inCartElement = inCartTemplate.cloneNode(true);
-  inCartElement.querySelector('.card-order__title').textContent = productInCart.name;
-  inCartElement.querySelector('.card-order__img').src = productInCart.picture;
-  inCartElement.querySelector('.card-order__img').alt = productInCart.name;
-  inCartElement.querySelector('.card-order__price').textContent = productInCart.price + ' ₽';
-  inCartElement.querySelector('.card-order__count').value = productInCart.orderedAmount;
-  goodsCardsElement.appendChild(inCartElement);
-  cart.push(productInCart);
-  createDeleteEvent();
-  // Удаляем у блока goods__cards класс goods__cards--empty и скрываем блок goods__card-empty
-  document.querySelector('.goods__cards').classList.remove('goods__cards--empty');
-  document.querySelector('.goods__card-empty').classList.add('visually-hidden');
+  var currentCardIndex = Number(currentCard.dataset.cardindex);
+  if (goodsCards[currentCardIndex].amount !== 0) {
+    addNewGoodInCart(currentCardIndex, checkIsInCart(currentCardIndex));
+  }
+  //   alert('Извините данного товара нет в наличии');
+  // }
+  return currentCardIndex;
+};
+
+var checkIsInCart = function (currentindex) {
+  var isInCart;
+  if (cart.length === 0) {
+    isInCart = false;
+    return isInCart;
+  } else {
+    for (var i = 0; i < cart.length; i++) {
+      if (cart[i].cardindex === currentindex) {
+        isInCart = true;
+        return isInCart;
+      } else {
+        isInCart = false;
+      }
+    }
+  }
+  return isInCart;
+};
+
+// добавление НОВОГО товара в корзину
+var addNewGoodInCart = function (currentindex, isincart) {
+  if (isincart) {
+    for (var i = 0; i < cart.length; i++) {
+      if (cart[i].cardindex === currentindex) {
+        cart[i].orderedAmount += 1;
+        cart[i].elem.querySelector('.card-order__count').value = cart[i].orderedAmount;
+      }
+    }
+  } else {
+    var productInCart = Object.assign({orderedAmount: 1}, goodsCards[currentindex]);
+    var inCartElement = inCartTemplate.cloneNode(true);
+    inCartElement.querySelector('.card-order__title').textContent = productInCart.name;
+    inCartElement.querySelector('.card-order__img').src = productInCart.picture;
+    inCartElement.querySelector('.card-order__img').alt = productInCart.name;
+    inCartElement.querySelector('.card-order__price').textContent = productInCart.price + ' ₽';
+    inCartElement.querySelector('.card-order__count').value = productInCart.orderedAmount;
+    inCartElement.dataset.cardindex = productInCart.cardindex;
+    productInCart.elem = inCartElement;
+    goodsCardsElement.appendChild(inCartElement);
+    cart.push(productInCart);
+    createDeleteEvent();
+    // Удаляем у блока goods__cards класс goods__cards--empty и скрываем блок goods__card-empty
+    document.querySelector('.goods__cards').classList.remove('goods__cards--empty');
+    document.querySelector('.goods__card-empty').classList.add('visually-hidden');
+  }
+  goodsCards[currentindex].amount -= 1;
+  var currentAmount = goodsCards[currentindex].amount;
+  if (currentAmount === 0) {
+    goodsCards[currentindex].elem.classList.remove('card--in-stock');
+    goodsCards[currentindex].elem.classList.add('card--soon');
+  } else if (currentAmount > 0 && currentAmount <= 5) {
+    goodsCards[currentindex].elem.classList.remove('card--in-stock');
+    goodsCards[currentindex].elem.classList.add('card--little');
+  }
+  headerCart.textContent = 'В корзине ' + cart.length + ' товаров';
   return cart;
 };
 
-// Проверка массива корзины на наличие товара и добавление объекта, если его не было
-// тут добавить код...
-
-
 // обработчик события на кнопку "добавить в корзину"
 for (var i = 0; i < btnAddToCart.length; i++) {
-  btnAddToCart[i].addEventListener('click', renderCardForCart);
+  btnAddToCart[i].addEventListener('click', checkIsInStock);
 }
