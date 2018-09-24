@@ -69,10 +69,14 @@ var headerCart = document.querySelector('.main-header__basket');
 var headerCartText;
 var headerCartEmpty = 'В корзине ничего нет';
 
-// переменные для переключение вкладок способы доставки
-var deliverToggleBtn = document.querySelector('.deliver__toggle');
+// переменные для переключение вкладок
+var deliverToggleBtn = [document.querySelector('.toggle-btn__input[value="courier"]'), document.querySelector('.toggle-btn__input[value="store"]')];
 var deliverStore = document.querySelector('.deliver__store');
 var deliverCourier = document.querySelector('.deliver__courier');
+
+var payToggleBtn = [document.querySelector('.toggle-btn__input[value="card"]'), document.querySelector('.toggle-btn__input[value="cash"]')];
+var payCard = document.querySelector('.payment__card-wrap');
+var payCash = document.querySelector('.payment__cash-wrap');
 
 // функция генерации случайного номера элемента массива
 var getRandomArrayElement = function (arr) {
@@ -267,11 +271,9 @@ var checkIsInStock = function (e) {
 };
 
 var checkIsInCart = function (currentIndex) {
-  if (cart.length > 0) {
-    for (var i = 0; i < cart.length; i++) {
-      if (cart[i].cardIndex === currentIndex) {
-        return true;
-      }
+  for (var i = 0; i < cart.length; i++) {
+    if (cart[i].cardIndex === currentIndex) {
+      return true;
     }
   }
   return false;
@@ -323,11 +325,18 @@ for (var i = 0; i < btnAddToCart.length; i++) {
   btnAddToCart[i].addEventListener('click', checkIsInStock);
 }
 
-// обработчик события на способы доставки
-deliverToggleBtn.addEventListener('change', function (evt) {
-  if (evt.target.id === 'deliver__courier' ||
-    evt.target.id === 'deliver__store') {
+// обработчик события на способы доставки и оплаты
+
+deliverToggleBtn.forEach(function (item) {
+  item.addEventListener('change', function () {
     deliverStore.classList.toggle('visually-hidden');
     deliverCourier.classList.toggle('visually-hidden');
-  }
+  });
+});
+
+payToggleBtn.forEach(function (item) {
+  item.addEventListener('change', function () {
+    payCard.classList.toggle('visually-hidden');
+    payCash.classList.toggle('visually-hidden');
+  });
 });
