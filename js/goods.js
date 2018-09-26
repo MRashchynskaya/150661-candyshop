@@ -351,75 +351,63 @@ var priceRangeLine = priceRangeBar.querySelector('.range__fill-line'); // пол
 var priceRangeBarWidth = priceRangeBar.offsetWidth; // ширина всей шкалы в пикселях
 var rangePriceMin = document.querySelector('.range__price--min'); // спан с мин. ценой
 var rangePriceMax = document.querySelector('.range__price--max'); // спан с макс. ценой
+var currentPriceRangeBtn; // текущий пин (тот, на котором была зажата левая кнопка мыши)
 var positionBtnLeft; // текущая позиция левого пина
 var positionBtnRight; // текущая позиция правого пина
+var shiftX;
 
-// двигаем ЛЕВЫЙ пин
-priceRangeBtnLeft.onmousedown = function (evt) {
-  evt.preventDefault();
-  var shiftX = evt.clientX - priceRangeBtnLeft.getBoundingClientRect().left; // от курсора до левой границы пина
-  document.addEventListener('mousemove', onMouseMove);
-  document.addEventListener('mouseup', onMouseUp);
+// УНИВЕРСАЛЬНАЯ функция отпускания кнопки мыши
+var onMouseUp = function () {
+  document.removeEventListener('mouseup', onMouseUp);
+  document.removeEventListener('mousemove', onMouseMove);
+};
 
-  function onMouseMove(event) {
-    var newLeft = event.clientX - shiftX - priceRangeBar.getBoundingClientRect().left; // координата левого края пина
-    if (newLeft < 0) { // ограничиваем движение пина слева
+// УНИВЕРСАЛЬНАЯ функция на движение курсора с зажатой кнопкой
+var onMouseMove = function (evt) {
+  var newLeft = evt.clientX - shiftX - priceRangeBar.getBoundingClientRect().left; // координата левого края пина
+  var rightEdge = priceRangeBarWidth - currentPriceRangeBtn.offsetWidth; // макс. правая точка = ширина шкалы - ширина пина
+  if (currentPriceRangeBtn == priceRangeBtnLeft) {
+    if (newLeft < 0) { // ограничиваем движение левого пина слева
       newLeft = 0;
     }
-    var rightEdge = priceRangeBarWidth - priceRangeBtnLeft.offsetWidth; // макс. правая точка = ширина шкалы - ширина пина
-    if (newLeft > positionBtnRight) { // ограничиваем движение пина по правому пину
+    if (newLeft > positionBtnRight) { // ограничиваем движение левого пина справа по правому пину 
       newLeft = positionBtnRight;
     }
-
-    priceRangeBtnLeft.style.left = newLeft + 'px';
+    currentPriceRangeBtn.style.left = newLeft + 'px';
     priceRangeLine.style.left = newLeft + shiftX + 'px';
-
     rangePriceMin.textContent = Math.round(newLeft / rightEdge * (MAX_PRICE - MIN_PRICE) + MIN_PRICE);
     positionBtnLeft = newLeft;
     return positionBtnLeft;
-  }
-
-  function onMouseUp() {
-    document.removeEventListener('mouseup', onMouseUp);
-    document.removeEventListener('mousemove', onMouseMove);
-  }
-};
-
-priceRangeBtnLeft.ondragstart = function () {
-  return false;
-};
-
-// двигаем ПРАВЫЙ пин
-priceRangeBtnRight.onmousedown = function (evt) {
-  evt.preventDefault();
-  var shiftX = evt.clientX - priceRangeBtnRight.getBoundingClientRect().left; // от курсора до левой границы пина
-  document.addEventListener('mousemove', onMouseMove);
-  document.addEventListener('mouseup', onMouseUp);
-
-  function onMouseMove(event) {
-    var newLeftR = event.clientX - shiftX - priceRangeBar.getBoundingClientRect().left; // координата левого края пина
-    if (newLeftR < positionBtnLeft) { // ограничиваем движение правого пина по левому пину
-      newLeftR = positionBtnLeft;
+  } else {
+    if (newLeft < positionBtnLeft) { // ограничиваем движение правого пина слева по левому пину
+      newLeft = positionBtnLeft;
     }
-    var rightEdge = priceRangeBarWidth - priceRangeBtnRight.offsetWidth; // макс. правая точка = ширина шкалы - ширина пина
-    if (newLeftR > rightEdge) { // ограничиваем движение пина справа
-      newLeftR = rightEdge;
+    if (newLeft > rightEdge) { // ограничиваем движение правого пина справа
+      newLeft = rightEdge;
     }
-
-    priceRangeBtnRight.style.left = newLeftR + 'px';
-    priceRangeLine.style.right = rightEdge - newLeftR + shiftX + 'px';
-
-    rangePriceMax.textContent = Math.round(newLeftR / rightEdge * (MAX_PRICE - MIN_PRICE) + MIN_PRICE);
-    positionBtnRight = newLeftR;
+    currentPriceRangeBtn.style.left = newLeft + 'px';
+    priceRangeLine.style.right = rightEdge - newLeft + shiftX + 'px';
+    rangePriceMax.textContent = Math.round(newLeft / rightEdge * (MAX_PRICE - MIN_PRICE) + MIN_PRICE);
+    positionBtnRight = newLeft;
     return positionBtnRight;
   }
+}
 
-  function onMouseUp() {
-    document.removeEventListener('mouseup', onMouseUp);
-    document.removeEventListener('mousemove', onMouseMove);
-  }
+// УНИВЕРСАЛЬНАЯ функция на зажатие левой кнопки на пине
+var onMouseDown = function (evt) {
+  evt.preventDefault();
+  currentPriceRangeBtn = evt.target;
+  shiftX = evt.clientX - currentPriceRangeBtn.getBoundingClientRect().left; // от курсора до левой границы пина
+  // positionBtnLeft = priceRangeBtnLeft.getBoundingClientRect().left // позиция левого пина в момент зажатия
+  // positionBtnRight = priceRangeBtnRight.getBoundingClientRect().left // позиция правого пина в момент зажатия
+  document.addEventListener('mousemove', onMouseMove);
+  document.addEventListener('mouseup', onMouseUp);
+  priceRangeBtnRight.ondragstart = function () {
+    return false;
+  };
+  return currentPriceRangeBtn;
 };
 
-priceRangeBtnRight.ondragstart = function () {
-  return false;
-};
+// добавляем события зажатия левой кнопки на левый и правй пины
+priceRangeBtnLeft.onmousedown = onMouseDown;
+priceRangeBtnRight.onmousedown = onMouseDown;
