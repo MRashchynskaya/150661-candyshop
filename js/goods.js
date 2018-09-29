@@ -46,10 +46,11 @@ var ingredientsMinMax = {
 
 // Массив классов соответствующих value рейтинга
 var starsRatingClass = ['stars__rating--one', 'stars__rating--two', 'stars__rating--three', 'stars__rating--four', 'stars__rating--five'];
-// переменная-массив для объектов - карточек товаров
+// переменная-массив для объектов - карточек товаров в каталоге
 var goodsCards = [];
 // переменная-массив для объектов - товаров в корзине
 var cart = [];
+var cartTotalCost = 0;
 // найдём элемент, в который мы будем вставлять карточки товаров
 var catalogCardsElement = document.querySelector('.catalog__cards');
 // находим шаблон для карточки товара
@@ -241,7 +242,8 @@ var deleteCardFromCart = function (e) {
       break;
     }
   }
-  headerCartText = 'В корзине ' + cart.length + ' товаров';
+  calcCartTotalCost();
+  headerCartText = 'В корзине ' + cart.length + ' товаров ' + 'на ' + cartTotalCost + '₽';
   headerCart.textContent = headerCartText;
   if (cart.length === 0) {
     document.querySelector('.goods__cards').classList.add('goods__cards--empty');
@@ -277,6 +279,15 @@ var checkIsInCart = function (currentIndex) {
     }
   }
   return false;
+};
+
+// функция расчета итоговой стоимости в корзине
+var calcCartTotalCost = function () {
+  cartTotalCost = 0;
+  cart.forEach(function (item) {
+    cartTotalCost += item.price * item.orderedAmount;
+  });
+  return cartTotalCost;
 };
 
 // добавление НОВОГО товара в корзину
@@ -315,7 +326,8 @@ var addNewProductInCart = function (currentIndex, isInCart) {
     goodsCards[currentIndex].elem.classList.remove('card--in-stock');
     goodsCards[currentIndex].elem.classList.add('card--little');
   }
-  headerCartText = 'В корзине ' + cart.length + ' товаров';
+  calcCartTotalCost();
+  headerCartText = 'В корзине ' + cart.length + ' товаров ' + 'на ' + cartTotalCost + '₽';
   headerCart.textContent = headerCartText;
   return cart;
 };
@@ -329,8 +341,8 @@ for (var i = 0; i < btnAddToCart.length; i++) {
 
 deliverToggleBtn.forEach(function (item) {
   item.addEventListener('change', function () {
-    deliverStore.classList.toggle('visually-hidden');
-    deliverCourier.classList.toggle('visually-hidden');
+    deliverStore.classList.toggle('visually-hidden', item.value === 'courier');
+    deliverCourier.classList.toggle('visually-hidden', item.value === 'store');
   });
 });
 
@@ -366,9 +378,6 @@ priceRangeLine.style.right = priceRangeBarWidth - positionBtnRight + priceBtnWid
 var calcPriceValue = function (positionBtn) {
   return Math.round(positionBtn / priceRangeBarWidth * (MAX_PRICE - MIN_PRICE) + MIN_PRICE);
 };
-// рассчитываем значения мин. и макс. цены при начальных позициях пинов и записываем в соответствующие спаны
-// rangePriceMin.textContent = calcPriceValue(positionBtnLeft);
-// rangePriceMax.textContent = calcPriceValue(positionBtnRight);
 
 // функция-обработчик перемещения пинов и отпускания кнопки мыши
 // параметры: событие, текущий пин, левый ограничитель, правый ограничитель, текущий спан, зажат левый пин (true/false)
