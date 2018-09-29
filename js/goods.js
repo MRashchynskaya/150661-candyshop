@@ -301,7 +301,7 @@ var addNewProductInCart = function (currentIndex, isInCart) {
       }
     }
   } else {
-    var productInCart = Object.assign({orderedAmount: 1}, goodsCards[currentIndex]);
+    var productInCart = Object.assign({ orderedAmount: 1 }, goodsCards[currentIndex]);
     var inCartElement = inCartTemplate.cloneNode(true);
     inCartElement.querySelector('.card-order__title').textContent = productInCart.name;
     inCartElement.querySelector('.card-order__img').src = productInCart.picture;
@@ -346,10 +346,21 @@ deliverToggleBtn.forEach(function (item) {
   });
 });
 
+var paymentCardAllInputs = document.querySelectorAll('.payment__inputs input');
+
 payToggleBtn.forEach(function (item) {
   item.addEventListener('change', function () {
     payCard.classList.toggle('visually-hidden', item.value === 'cash');
     payCash.classList.toggle('visually-hidden', item.value === 'card');
+    if (item.value == 'cash') {
+      paymentCardAllInputs.forEach(function (item) {
+        item.setAttribute('disabled', '');
+      });
+    } else {
+      paymentCardAllInputs.forEach(function (item) {
+        item.removeAttribute('disabled');
+      });
+    }
   });
 });
 
@@ -423,3 +434,50 @@ priceRangeBtnRight.addEventListener('mousedown', function (evt) {
   evt.preventDefault();
   priceRangeBtnHandler(evt, priceRangeBtnRight, positionBtnLeft, priceRangeBarWidth, rangePriceMax, false);
 });
+
+// проверка данных платежной карты
+var paymentCardInput = document.getElementById('payment__card-number');
+var paymentCardDateInput = document.getElementById('payment__card-date');
+var cvcInput = document.getElementById('payment__card-cvc');
+var paymentCardholderInput = document.getElementById('payment__cardholder');
+var paymentValidMessage = document.querySelector('.payment__card-status');
+
+var isDateInputCorrect = function () {
+  return paymentCardDateInput.validity.valid;
+};
+var isCvcInputCorrect = function () {
+  return cvcInput.value >= 100;
+};
+var isCardholderInputCorrect = function () {
+  return paymentCardholderInput.validity.valid;
+};
+
+var paymentCardAllChecks = function () {
+  if (luhn(paymentCardInput.value) && isDateInputCorrect() && isCvcInputCorrect() && isCardholderInputCorrect()) {
+    paymentValidMessage.textContent = 'Одобрен';
+  } else {
+    paymentValidMessage.textContent = 'Не определён';
+  }
+};
+
+function luhn(cardNumber) {
+  var arr = cardNumber.split('').map(function (char, index) {
+    var digit = parseInt(char, 10);
+
+    if ((index + cardNumber.length) % 2 === 0) {
+      var digitX2 = digit * 2;
+      return digitX2 > 9 ? digitX2 - 9 : digitX2;
+    }
+
+    return digit;
+  });
+
+  return !(arr.reduce(function (a, b) {
+    return a + b;
+  }, 0) % 10);
+}
+
+paymentCardInput.addEventListener('change', paymentCardAllChecks);
+paymentCardDateInput.addEventListener('change', paymentCardAllChecks);
+cvcInput.addEventListener('change', paymentCardAllChecks);
+paymentCardholderInput.addEventListener('change', paymentCardAllChecks);
