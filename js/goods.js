@@ -301,7 +301,7 @@ var addNewProductInCart = function (currentIndex, isInCart) {
       }
     }
   } else {
-    var productInCart = Object.assign({ orderedAmount: 1 }, goodsCards[currentIndex]);
+    var productInCart = Object.assign({orderedAmount: 1}, goodsCards[currentIndex]);
     var inCartElement = inCartTemplate.cloneNode(true);
     inCartElement.querySelector('.card-order__title').textContent = productInCart.name;
     inCartElement.querySelector('.card-order__img').src = productInCart.picture;
@@ -352,13 +352,13 @@ payToggleBtn.forEach(function (item) {
   item.addEventListener('change', function () {
     payCard.classList.toggle('visually-hidden', item.value === 'cash');
     payCash.classList.toggle('visually-hidden', item.value === 'card');
-    if (item.value == 'cash') {
-      paymentCardAllInputs.forEach(function (item) {
-        item.setAttribute('disabled', '');
+    if (item.value === 'cash') {
+      paymentCardAllInputs.forEach(function (itemInput) {
+        itemInput.setAttribute('disabled', '');
       });
     } else {
-      paymentCardAllInputs.forEach(function (item) {
-        item.removeAttribute('disabled');
+      paymentCardAllInputs.forEach(function (itemInput) {
+        itemInput.removeAttribute('disabled');
       });
     }
   });
