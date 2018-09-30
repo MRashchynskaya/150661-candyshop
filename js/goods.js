@@ -467,8 +467,10 @@ var isCardholderInputCorrect = function () {
 var paymentCardAllChecks = function () {
   if (luhn(paymentCardInput.value) && isDateInputCorrect() && isCvcInputCorrect() && isCardholderInputCorrect()) {
     paymentValidMessage.textContent = 'Одобрен';
+    paymentCardInput.setCustomValidity('');
   } else {
     paymentValidMessage.textContent = 'Не определён';
+    paymentCardInput.setCustomValidity('Пожалуйста, проверьте номер карты.');
   }
 };
 
