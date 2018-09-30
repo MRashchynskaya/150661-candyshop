@@ -338,15 +338,27 @@ for (var i = 0; i < btnAddToCart.length; i++) {
 }
 
 // обработчик события на способы доставки и оплаты
+var paymentCardAllInputs = document.querySelectorAll('.payment__inputs input');
+var deliverCourierAllInputs = document.querySelectorAll('.deliver__courier input, .deliver__courier textarea');
+var deliverStoreInputs = document.querySelectorAll('.deliver__store-list input');
+// по умолчанию блокируем поля данных для способа "Курьером"
+deliverCourierAllInputs.forEach(function (itemInput) {
+  itemInput.disabled = true;
+});
 
+// обработчик события на кнопки способа доставки и оплаты
 deliverToggleBtn.forEach(function (item) {
   item.addEventListener('change', function () {
     deliverStore.classList.toggle('visually-hidden', item.value === 'courier');
     deliverCourier.classList.toggle('visually-hidden', item.value === 'store');
+    deliverCourierAllInputs.forEach(function (itemInput) {
+      itemInput.disabled = item.value === 'store';
+    });
+    deliverStoreInputs.forEach(function (itemInput) {
+      itemInput.disabled = item.value === 'courier';
+    });
   });
 });
-
-var paymentCardAllInputs = document.querySelectorAll('.payment__inputs input');
 
 payToggleBtn.forEach(function (item) {
   item.addEventListener('change', function () {
@@ -435,7 +447,7 @@ priceRangeBtnRight.addEventListener('mousedown', function (evt) {
   priceRangeBtnHandler(evt, priceRangeBtnRight, positionBtnLeft, priceRangeBarWidth, rangePriceMax, false);
 });
 
-// проверка данных платежной карты
+// проверка данных формы для платежной карты
 var paymentCardInput = document.getElementById('payment__card-number');
 var paymentCardDateInput = document.getElementById('payment__card-date');
 var cvcInput = document.getElementById('payment__card-cvc');
@@ -446,7 +458,7 @@ var isDateInputCorrect = function () {
   return paymentCardDateInput.validity.valid;
 };
 var isCvcInputCorrect = function () {
-  return cvcInput.value >= 100;
+  return cvcInput.validity.valid;
 };
 var isCardholderInputCorrect = function () {
   return paymentCardholderInput.validity.valid;
@@ -461,23 +473,26 @@ var paymentCardAllChecks = function () {
 };
 
 function luhn(cardNumber) {
-  var arr = cardNumber.split('').map(function (char, index) {
-    var digit = parseInt(char, 10);
+  if (cardNumber.length === 16) {
+    var arr = cardNumber.split('').map(function (char, index) {
+      var digit = parseInt(char, 10);
 
-    if ((index + cardNumber.length) % 2 === 0) {
-      var digitX2 = digit * 2;
-      return digitX2 > 9 ? digitX2 - 9 : digitX2;
-    }
+      if ((index + cardNumber.length) % 2 === 0) {
+        var digitX2 = digit * 2;
+        return digitX2 > 9 ? digitX2 - 9 : digitX2;
+      }
 
-    return digit;
-  });
+      return digit;
+    });
 
-  return !(arr.reduce(function (a, b) {
-    return a + b;
-  }, 0) % 10);
+    return !(arr.reduce(function (a, b) {
+      return a + b;
+    }, 0) % 10);
+  }
+  return false;
 }
 
-paymentCardInput.addEventListener('change', paymentCardAllChecks);
-paymentCardDateInput.addEventListener('change', paymentCardAllChecks);
-cvcInput.addEventListener('change', paymentCardAllChecks);
-paymentCardholderInput.addEventListener('change', paymentCardAllChecks);
+paymentCardInput.addEventListener('input', paymentCardAllChecks);
+paymentCardDateInput.addEventListener('input', paymentCardAllChecks);
+cvcInput.addEventListener('input', paymentCardAllChecks);
+paymentCardholderInput.addEventListener('input', paymentCardAllChecks);
