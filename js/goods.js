@@ -216,9 +216,7 @@ for (var j = 0; j < btnFavProd.length; j++) {
 var btnAddToCart = document.querySelectorAll('.card__btn');
 
 // функция удаления из корзины
-var deleteCardFromCart = function (e) {
-  e.preventDefault();
-  var currentBtn = e.target;
+var deleteCardFromCart = function (currentBtn) {
   var cardToDelete = currentBtn.closest('.card-order');
   var deleteCardIndex = parseInt(cardToDelete.dataset.cardIndex, 10);
   goodsCardsElement.removeChild(cardToDelete);
@@ -256,50 +254,35 @@ var deleteCardFromCart = function (e) {
 var createDeleteEvent = function () {
   var btnDeleteFromCart = document.querySelectorAll('.card-order__close');
   for (var i = 0; i < btnDeleteFromCart.length; i++) {
-    btnDeleteFromCart[i].addEventListener('click', deleteCardFromCart);
+    btnDeleteFromCart[i].addEventListener('click', function (e) {
+      e.preventDefault();
+      deleteCardFromCart(e.target);
+    });
   }
 };
 
 // УНИВЕРСАЛЬНАЯ функция уменьшения и увеличения кол-ва товара в корзине
-var changeOrderedAmount = function (e, isDecrease, currentCardToChange) {
-  var changeCardIndex = parseInt(currentCardToChange.dataset.cardIndex, 10);
-  if (isDecrease) {
-    for (var i = 0; i < cart.length; i++) {
-      if (cart[i].cardIndex === changeCardIndex) {
-        cart[i].orderedAmount -= 1;
-        if (cart[i].orderedAmount === 0) {
-          deleteCardFromCart(e);
-        } else {
-          cart[i].elem.querySelector('.card-order__count').value = cart[i].orderedAmount;
-          calcCartTotalCost();
-          headerCartText = 'В корзине ' + cart.length + ' товаров ' + 'на ' + cartTotalCost + '₽';
-          headerCart.textContent = headerCartText;
-          for (var k = 0; k < goodsCards.length; k++) {
-            if (goodsCards[k].cardIndex === changeCardIndex) {
-              goodsCards[k].amount += 1;
-              break;
-            }
-          }
-        }
-        break;
-      }
-    }
-  } else {
-    for (i = 0; i < cart.length; i++) {
-      if (cart[i].cardIndex === changeCardIndex && cart[i].orderedAmount < cart[i].amount) {
-        cart[i].orderedAmount += 1;
+var changeOrderedAmount = function (currentBtn, changeValue, changeCardIndex) {
+  for (var i = 0; i < cart.length; i++) {
+    if (cart[i].cardIndex === changeCardIndex) {
+      cart[i].orderedAmount += changeValue;
+      if (cart[i].orderedAmount === 0) {
+        deleteCardFromCart(currentBtn);
+      } else if (cart[i].orderedAmount > cart[i].amount) {
+        cart[i].orderedAmount = cart[i].amount;
+      } else {
         cart[i].elem.querySelector('.card-order__count').value = cart[i].orderedAmount;
         calcCartTotalCost();
         headerCartText = 'В корзине ' + cart.length + ' товаров ' + 'на ' + cartTotalCost + '₽';
         headerCart.textContent = headerCartText;
-        for (k = 0; k < goodsCards.length; k++) {
+        for (var k = 0; k < goodsCards.length; k++) {
           if (goodsCards[k].cardIndex === changeCardIndex) {
-            goodsCards[k].amount -= 1;
+            goodsCards[k].amount -= changeValue;
             break;
           }
         }
-        break;
       }
+      break;
     }
   }
   for (k = 0; k < goodsCards.length; k++) {
@@ -320,16 +303,16 @@ var changeOrderedAmount = function (e, isDecrease, currentCardToChange) {
 };
 
 // Находим кнопки "Уменьшить" и "Увеличить" для карточек в корзине и навешиваем события
-var createDecreaseEncreaseEvent = function () {
+var createDecreaseEncreaseEvent = function (currentIndex) {
   var btnDecrease = document.querySelectorAll('.card-order__btn--decrease');
   var btnIncrease = document.querySelectorAll('.card-order__btn--increase');
   btnDecrease[btnDecrease.length - 1].addEventListener('click', function (e) {
     e.preventDefault();
-    changeOrderedAmount(e, true, e.target.closest('.card-order'));
+    changeOrderedAmount(e.target, -1, currentIndex);
   });
   btnIncrease[btnIncrease.length - 1].addEventListener('click', function (e) {
     e.preventDefault();
-    changeOrderedAmount(e, false, e.target.closest('.card-order'));
+    changeOrderedAmount(e.target, 1, currentIndex);
   });
 };
 
@@ -386,7 +369,7 @@ var addNewProductInCart = function (currentIndex, isInCart) {
     goodsCardsElement.appendChild(inCartElement);
     cart.push(productInCart);
     createDeleteEvent();
-    createDecreaseEncreaseEvent();
+    createDecreaseEncreaseEvent(currentIndex);
     // Удаляем у блока goods__cards класс goods__cards--empty и скрываем блок goods__card-empty
     document.querySelector('.goods__cards').classList.remove('goods__cards--empty');
     document.querySelector('.goods__card-empty').classList.add('visually-hidden');
