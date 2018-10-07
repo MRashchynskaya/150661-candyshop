@@ -260,89 +260,77 @@ var createDeleteEvent = function () {
   }
 };
 
-// функция УМЕНЬШЕНИЯ кол-ва товара в корзине
-var decreaseOrderedAmount = function (e) {
-  e.preventDefault();
-  var currentDecreaseBtn = e.target;
-  var cardToDecrease = currentDecreaseBtn.closest('.card-order');
-  var decreaseCardIndex = parseInt(cardToDecrease.dataset.cardIndex, 10);
-  for (var i = 0; i < cart.length; i++) {
-    if (cart[i].cardIndex === decreaseCardIndex) {
-      cart[i].orderedAmount -= 1;
-      if (cart[i].orderedAmount === 0) {
-        deleteCardFromCart(e);
-      } else {
+// УНИВЕРСАЛЬНАЯ функция уменьшения и увеличения кол-ва товара в корзине
+var changeOrderedAmount = function (e, isDecrease, currentCardToChange) {
+  var changeCardIndex = parseInt(currentCardToChange.dataset.cardIndex, 10);
+  if (isDecrease) {
+    for (var i = 0; i < cart.length; i++) {
+      if (cart[i].cardIndex === changeCardIndex) {
+        cart[i].orderedAmount -= 1;
+        if (cart[i].orderedAmount === 0) {
+          deleteCardFromCart(e);
+        } else {
+          cart[i].elem.querySelector('.card-order__count').value = cart[i].orderedAmount;
+          calcCartTotalCost();
+          headerCartText = 'В корзине ' + cart.length + ' товаров ' + 'на ' + cartTotalCost + '₽';
+          headerCart.textContent = headerCartText;
+          for (var k = 0; k < goodsCards.length; k++) {
+            if (goodsCards[k].cardIndex === changeCardIndex) {
+              goodsCards[k].amount += 1;
+              break;
+            }
+          }
+        }
+        break;
+      }
+    }
+  } else {
+    for (i = 0; i < cart.length; i++) {
+      if (cart[i].cardIndex === changeCardIndex && cart[i].orderedAmount < cart[i].amount) {
+        cart[i].orderedAmount += 1;
         cart[i].elem.querySelector('.card-order__count').value = cart[i].orderedAmount;
         calcCartTotalCost();
         headerCartText = 'В корзине ' + cart.length + ' товаров ' + 'на ' + cartTotalCost + '₽';
         headerCart.textContent = headerCartText;
-        for (var k = 0; k < goodsCards.length; k++) {
-          if (goodsCards[k].cardIndex === decreaseCardIndex) {
-            goodsCards[k].amount += 1;
-            if (goodsCards[k].amount > 0 && goodsCards[k].amount <= 5) {
-              goodsCards[k].elem.classList.remove('card--in-stock', 'card--soon');
-              goodsCards[k].elem.classList.add('card--little');
-            } else {
-              goodsCards[k].elem.classList.remove('card--in-stock', 'card--little', 'card--soon');
-              goodsCards[k].elem.classList.add('card--in-stock');
-            }
+        for (k = 0; k < goodsCards.length; k++) {
+          if (goodsCards[k].cardIndex === changeCardIndex) {
+            goodsCards[k].amount -= 1;
             break;
           }
         }
+        break;
+      }
+    }
+  }
+  for (k = 0; k < goodsCards.length; k++) {
+    if (goodsCards[k].cardIndex === changeCardIndex) {
+      if (goodsCards[k].amount > 0 && goodsCards[k].amount <= 5) {
+        goodsCards[k].elem.classList.remove('card--in-stock', 'card--soon');
+        goodsCards[k].elem.classList.add('card--little');
+      } else if (goodsCards[k].amount === 0) {
+        goodsCards[k].elem.classList.remove('card--in-stock', 'card--little', 'card--soon');
+        goodsCards[k].elem.classList.add('card--soon');
+      } else {
+        goodsCards[k].elem.classList.remove('card--in-stock', 'card--little', 'card--soon');
+        goodsCards[k].elem.classList.add('card--in-stock');
       }
       break;
     }
   }
 };
 
-// функция УВЕЛИЧЕНИЯ кол-ва товара в корзине
-var increaseOrderedAmount = function (e) {
-  e.preventDefault();
-  var currentIncreaseBtn = e.target;
-  var cardToIncrease = currentIncreaseBtn.closest('.card-order');
-  var increaseCardIndex = parseInt(cardToIncrease.dataset.cardIndex, 10);
-  for (var i = 0; i < cart.length; i++) {
-    if (cart[i].cardIndex === increaseCardIndex && cart[i].orderedAmount < cart[i].amount) {
-      cart[i].orderedAmount += 1;
-      cart[i].elem.querySelector('.card-order__count').value = cart[i].orderedAmount;
-      calcCartTotalCost();
-      headerCartText = 'В корзине ' + cart.length + ' товаров ' + 'на ' + cartTotalCost + '₽';
-      headerCart.textContent = headerCartText;
-      for (var k = 0; k < goodsCards.length; k++) {
-        if (goodsCards[k].cardIndex === increaseCardIndex) {
-          goodsCards[k].amount -= 1;
-          if (goodsCards[k].amount > 0 && goodsCards[k].amount <= 5) {
-            goodsCards[k].elem.classList.remove('card--in-stock', 'card--soon');
-            goodsCards[k].elem.classList.add('card--little');
-          } else if (goodsCards[k].amount === 0) {
-            goodsCards[k].elem.classList.remove('card--in-stock', 'card--little', 'card--soon');
-            goodsCards[k].elem.classList.add('card--soon');
-          } else {
-            goodsCards[k].elem.classList.remove('card--in-stock', 'card--little', 'card--soon');
-            goodsCards[k].elem.classList.add('card--in-stock');
-          }
-          break;
-        }
-      }
-      break;
-    }
-  }
-};
-
-// Находим ВСЕ кнопки "Уменьшить" и навешиваем события
-var createDecreaseEvent = function () {
+// Находим кнопки "Уменьшить" и "Увеличить" для карточек в корзине и навешиваем события
+var createDecreaseEncreaseEvent = function () {
   var btnDecrease = document.querySelectorAll('.card-order__btn--decrease');
-  for (var i = 0; i < btnDecrease.length; i++) {
-    btnDecrease[i].addEventListener('click', decreaseOrderedAmount);
-  }
-};
-
-// Находим ВСЕ кнопки "Увеличить" и навешиваем события
-var createIncreaseEvent = function () {
   var btnIncrease = document.querySelectorAll('.card-order__btn--increase');
-  for (var i = 0; i < btnIncrease.length; i++) {
-    btnIncrease[i].addEventListener('click', increaseOrderedAmount);
-  }
+  btnDecrease[btnDecrease.length - 1].addEventListener('click', function (e) {
+    e.preventDefault();
+    changeOrderedAmount(e, true, e.target.closest('.card-order'));
+  });
+  btnIncrease[btnIncrease.length - 1].addEventListener('click', function (e) {
+    e.preventDefault();
+    changeOrderedAmount(e, false, e.target.closest('.card-order'));
+  });
 };
 
 // проверка наличия товара и наличия его в корзине
@@ -398,8 +386,7 @@ var addNewProductInCart = function (currentIndex, isInCart) {
     goodsCardsElement.appendChild(inCartElement);
     cart.push(productInCart);
     createDeleteEvent();
-    createDecreaseEvent();
-    createIncreaseEvent();
+    createDecreaseEncreaseEvent();
     // Удаляем у блока goods__cards класс goods__cards--empty и скрываем блок goods__card-empty
     document.querySelector('.goods__cards').classList.remove('goods__cards--empty');
     document.querySelector('.goods__card-empty').classList.add('visually-hidden');
