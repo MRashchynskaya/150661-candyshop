@@ -215,6 +215,25 @@ for (var j = 0; j < btnFavProd.length; j++) {
 // Находим ВСЕ кнопки "Добавить в корзину"
 var btnAddToCart = document.querySelectorAll('.card__btn');
 
+// функция изменения класса карточки в зависимости от текущего кол-ва товара (вид кнопки "Добавить +1")
+var changeGoodsCardClass = function (currentIndex) {
+  for (var k = 0; k < goodsCards.length; k++) {
+    if (goodsCards[k].cardIndex === currentIndex) {
+      if (goodsCards[k].amount > 0 && goodsCards[k].amount <= 5) {
+        goodsCards[k].elem.classList.remove('card--in-stock', 'card--soon');
+        goodsCards[k].elem.classList.add('card--little');
+      } else if (goodsCards[k].amount === 0) {
+        goodsCards[k].elem.classList.remove('card--in-stock', 'card--little', 'card--soon');
+        goodsCards[k].elem.classList.add('card--soon');
+      } else {
+        goodsCards[k].elem.classList.remove('card--in-stock', 'card--little', 'card--soon');
+        goodsCards[k].elem.classList.add('card--in-stock');
+      }
+      break;
+    }
+  }
+};
+
 // функция удаления из корзины
 var deleteCardFromCart = function (currentBtn) {
   var cardToDelete = currentBtn.closest('.card-order');
@@ -230,16 +249,10 @@ var deleteCardFromCart = function (currentBtn) {
   for (var k = 0; k < goodsCards.length; k++) {
     if (goodsCards[k].cardIndex === deleteCardIndex) {
       goodsCards[k].amount = amountToDelete;
-      if (goodsCards[k].amount > 0 && goodsCards[k].amount <= 5) {
-        goodsCards[k].elem.classList.remove('card--in-stock', 'card--soon');
-        goodsCards[k].elem.classList.add('card--little');
-      } else {
-        goodsCards[k].elem.classList.remove('card--in-stock', 'card--little', 'card--soon');
-        goodsCards[k].elem.classList.add('card--in-stock');
-      }
       break;
     }
   }
+  changeGoodsCardClass(deleteCardIndex);
   calcCartTotalCost();
   headerCartText = 'В корзине ' + cart.length + ' товаров ' + 'на ' + cartTotalCost + '₽';
   headerCart.textContent = headerCartText;
@@ -285,21 +298,7 @@ var changeOrderedAmount = function (currentBtn, changeValue, changeCardIndex) {
       break;
     }
   }
-  for (k = 0; k < goodsCards.length; k++) {
-    if (goodsCards[k].cardIndex === changeCardIndex) {
-      if (goodsCards[k].amount > 0 && goodsCards[k].amount <= 5) {
-        goodsCards[k].elem.classList.remove('card--in-stock', 'card--soon');
-        goodsCards[k].elem.classList.add('card--little');
-      } else if (goodsCards[k].amount === 0) {
-        goodsCards[k].elem.classList.remove('card--in-stock', 'card--little', 'card--soon');
-        goodsCards[k].elem.classList.add('card--soon');
-      } else {
-        goodsCards[k].elem.classList.remove('card--in-stock', 'card--little', 'card--soon');
-        goodsCards[k].elem.classList.add('card--in-stock');
-      }
-      break;
-    }
-  }
+  changeGoodsCardClass(changeCardIndex);
 };
 
 // Находим кнопки "Уменьшить" и "Увеличить" для карточек в корзине и навешиваем события
@@ -375,14 +374,7 @@ var addNewProductInCart = function (currentIndex, isInCart) {
     document.querySelector('.goods__card-empty').classList.add('visually-hidden');
   }
   goodsCards[currentIndex].amount -= 1;
-  var currentAmount = goodsCards[currentIndex].amount;
-  if (currentAmount === 0) {
-    goodsCards[currentIndex].elem.classList.remove('card--little');
-    goodsCards[currentIndex].elem.classList.add('card--soon');
-  } else if (currentAmount > 0 && currentAmount <= 5) {
-    goodsCards[currentIndex].elem.classList.remove('card--in-stock');
-    goodsCards[currentIndex].elem.classList.add('card--little');
-  }
+  changeGoodsCardClass(currentIndex);
   calcCartTotalCost();
   headerCartText = 'В корзине ' + cart.length + ' товаров ' + 'на ' + cartTotalCost + '₽';
   headerCart.textContent = headerCartText;
