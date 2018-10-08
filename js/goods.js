@@ -63,7 +63,8 @@ var inCartTemplate = document.querySelector('#card-order')
   .querySelector('.goods_card');
 // найдём элемент, в который мы будем вставлять карточки товаров в корзине
 var goodsCardsElement = document.querySelector('.goods__cards');
-// переменная для проверки наличия в корзине
+// блок пустой корзины
+var goodsCardsEmpty = document.querySelector('.goods__card-empty');
 
 // Блок корзина в хедере страницы
 var headerCart = document.querySelector('.main-header__basket');
@@ -71,7 +72,7 @@ var headerCartText;
 var headerCartEmpty = 'В корзине ничего нет';
 
 // переменные для переключение вкладок
-var deliverToggleBtn = document.querySelectorAll('.deliver .toggle-btn__input');
+var deliveryToggleBtn = document.querySelectorAll('.deliver .toggle-btn__input');
 var deliverStore = document.querySelector('.deliver__store');
 var deliverCourier = document.querySelector('.deliver__courier');
 
@@ -257,8 +258,8 @@ var deleteCardFromCart = function (currentBtn) {
   headerCartText = 'В корзине ' + cart.length + ' товаров ' + 'на ' + cartTotalCost + '₽';
   headerCart.textContent = headerCartText;
   if (cart.length === 0) {
-    document.querySelector('.goods__cards').classList.add('goods__cards--empty');
-    document.querySelector('.goods__card-empty').classList.remove('visually-hidden');
+    goodsCardsElement.classList.add('goods__cards--empty');
+    goodsCardsEmpty.classList.remove('visually-hidden');
     headerCart.textContent = headerCartEmpty;
   }
 };
@@ -300,7 +301,7 @@ var changeOrderedAmount = function (currentBtn, changeValue, changeCardIndex) {
 };
 
 // Находим кнопки "Уменьшить" и "Увеличить" для карточек в корзине и навешиваем события
-var createDecreaseEncreaseEvent = function (newCardInCart, currentIndex) {
+var createDecreaseIncreaseEvent = function (newCardInCart, currentIndex) {
   var btnDecrease = newCardInCart.querySelector('.card-order__btn--decrease');
   var btnIncrease = newCardInCart.querySelector('.card-order__btn--increase');
   btnDecrease.addEventListener('click', function (e) {
@@ -354,7 +355,7 @@ var addNewProductInCart = function (currentIndex, isInCart) {
       }
     }
   } else {
-    var productInCart = Object.assign({orderedAmount: 1}, goodsCards[currentIndex]);
+    var productInCart = Object.assign({ orderedAmount: 1 }, goodsCards[currentIndex]);
     var inCartElement = inCartTemplate.cloneNode(true);
     inCartElement.querySelector('.card-order__title').textContent = productInCart.name;
     inCartElement.querySelector('.card-order__img').src = productInCart.picture;
@@ -366,10 +367,10 @@ var addNewProductInCart = function (currentIndex, isInCart) {
     goodsCardsElement.appendChild(inCartElement);
     cart.push(productInCart);
     createDeleteEvent(inCartElement);
-    createDecreaseEncreaseEvent(inCartElement, currentIndex);
+    createDecreaseIncreaseEvent(inCartElement, currentIndex);
     // Удаляем у блока goods__cards класс goods__cards--empty и скрываем блок goods__card-empty
-    document.querySelector('.goods__cards').classList.remove('goods__cards--empty');
-    document.querySelector('.goods__card-empty').classList.add('visually-hidden');
+    goodsCardsElement.classList.remove('goods__cards--empty');
+    goodsCardsEmpty.classList.add('visually-hidden');
   }
   goodsCards[currentIndex].amount -= 1;
   changeGoodsCardClass(currentIndex);
@@ -394,7 +395,7 @@ deliverCourierAllInputs.forEach(function (itemInput) {
 });
 
 // обработчик события на кнопки способа доставки и оплаты
-deliverToggleBtn.forEach(function (item) {
+deliveryToggleBtn.forEach(function (item) {
   item.addEventListener('change', function () {
     deliverStore.classList.toggle('visually-hidden', item.value === 'courier');
     deliverCourier.classList.toggle('visually-hidden', item.value === 'store');
@@ -511,19 +512,7 @@ var isCardholderInputCorrect = function () {
   return paymentCardholderInput.validity.valid;
 };
 
-var paymentCardAllChecks = function () {
-  if (luhn(paymentCardInput.value) && isDateInputCorrect() && isCvcInputCorrect() && isCardholderInputCorrect()) {
-    paymentValidMessage.textContent = 'Одобрен';
-    paymentCardInput.setCustomValidity('');
-  } else {
-    paymentValidMessage.textContent = 'Не определён';
-    if (!luhn(paymentCardInput.value)) {
-      paymentCardInput.setCustomValidity('Пожалуйста, проверьте номер карты.');
-    }
-  }
-};
-
-function luhn(cardNumber) {
+var luhn = function (cardNumber) {
   if (cardNumber.length === 16) {
     var arr = cardNumber.split('').map(function (char, index) {
       var digit = parseInt(char, 10);
@@ -541,9 +530,58 @@ function luhn(cardNumber) {
     }, 0) % 10);
   }
   return false;
-}
+};
 
-paymentCardInput.addEventListener('input', paymentCardAllChecks);
-paymentCardDateInput.addEventListener('input', paymentCardAllChecks);
-cvcInput.addEventListener('input', paymentCardAllChecks);
-paymentCardholderInput.addEventListener('input', paymentCardAllChecks);
+// var paymentCardAllChecks = function () {
+//   if (luhn(paymentCardInput.value) && isDateInputCorrect() && isCvcInputCorrect() && isCardholderInputCorrect()) {
+//     paymentValidMessage.textContent = 'Одобрен';
+//     paymentCardInput.setCustomValidity('');
+//   } else {
+//     paymentValidMessage.textContent = 'Не определён';
+//     if (!luhn(paymentCardInput.value)) {
+//       paymentCardInput.setCustomValidity('Пожалуйста, проверьте номер карты.');
+//     }
+//   }
+// };
+
+var paymentCardInputCheck = function () {
+  if (luhn(paymentCardInput.value)) {
+    paymentValidMessage.textContent = 'Одобрен';
+    paymentCardInput.setCustomValidity('');
+  } else {
+    paymentValidMessage.textContent = 'Не определён';
+    paymentCardInput.setCustomValidity('Пожалуйста, проверьте номер карты.');
+  }
+};
+
+var paymentCardDateInputCheck = function () {
+  if (isDateInputCorrect()) {
+    paymentValidMessage.textContent = 'Одобрен';
+  } else {
+    paymentValidMessage.textContent = 'Не определён';
+    paymentCardDateInput.setCustomValidity('Пожалуйста, проверьте дату');
+  }
+};
+
+var cvcInputCheck = function () {
+  if (isCvcInputCorrect()) {
+    paymentValidMessage.textContent = 'Одобрен';
+  } else {
+    paymentValidMessage.textContent = 'Не определён';
+    cvcInput.setCustomValidity('Пожалуйста, проверьте CVC');
+  }
+};
+
+var cardholderInputCheck = function () {
+  if (isCardholderInputCorrect()) {
+    paymentValidMessage.textContent = 'Одобрен';
+  } else {
+    paymentValidMessage.textContent = 'Не определён';
+    paymentCardholderInput.setCustomValidity('Пожалуйста, проверьте имя');
+  }
+};
+
+paymentCardInput.addEventListener('input', paymentCardInputCheck);
+paymentCardDateInput.addEventListener('input', paymentCardDateInputCheck);
+cvcInput.addEventListener('input', cvcInputCheck);
+paymentCardholderInput.addEventListener('input', cardholderInputCheck);
