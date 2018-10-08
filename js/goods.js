@@ -355,7 +355,7 @@ var addNewProductInCart = function (currentIndex, isInCart) {
       }
     }
   } else {
-    var productInCart = Object.assign({ orderedAmount: 1 }, goodsCards[currentIndex]);
+    var productInCart = Object.assign({orderedAmount: 1}, goodsCards[currentIndex]);
     var inCartElement = inCartTemplate.cloneNode(true);
     inCartElement.querySelector('.card-order__title').textContent = productInCart.name;
     inCartElement.querySelector('.card-order__img').src = productInCart.picture;
