@@ -236,20 +236,20 @@
                 <div class="payment__inputs">
                   <div class="payment__card-group">
                     <p class="text-input text-input--light payment__input-wrap payment__input-wrap--card-number">
-                      <input type="text" class="text-input__input" name="card-number" id="payment__card-number" pattern="[0-9]{16}"
+                      <input type="text" class="text-input__input" name="card-number" id="payment__card-number"
                         placeholder="Номер карты" required title="Введите номер Вашей карты: 16 цифр">
                       <label class="text-input__label" for="payment__card-number">Номер карты</label>
                     </p>
 
                     <p class="text-input text-input--light payment__input-wrap payment__input-wrap--card-date">
                       <input type="text" class="text-input__input" name="card-date" id="payment__card-date" placeholder="мм/гг"
-                        pattern="[0-1][0-9][/][1-2][0-9]" required title="Корректный формат даты: мм/гг">
+                      required title="Корректный формат даты: мм/гг">
                       <label class="text-input__label" for="payment__card-date">мм/гг</label>
                     </p>
 
                     <p class="text-input text-input--light payment__input-wrap payment__input-wrap--cvc">
                       <input type="password" class="text-input__input" name="card-cvc" id="payment__card-cvc"
-                        placeholder="CVC" pattern="[1-9][0-9][0-9]" required title="Корректный формат CVC: число от 100 до 999">
+                        placeholder="CVC" required title="Корректный формат CVC: число от 100 до 999">
                       <label class="text-input__label text-input__label--lock" for="payment__card-cvc">CVC</label>
                     </p>
 
@@ -257,13 +257,12 @@
                   <div class="payment__cardholder-group">
                     <p class="text-input text-input--light payment__input-wrap payment__input-wrap--cardholder">
                       <input type="text" class="text-input__input" name="cardholder" id="payment__cardholder"
-                        placeholder="ИМЯ ДЕРЖАТЕЛЯ" pattern="[a-zA-Z\s]{2,30}" required title="Введите Ваше имя латинскими символами">
+                        placeholder="ИМЯ ДЕРЖАТЕЛЯ" required title="Введите Ваше имя латинскими символами">
                       <label class="text-input__label" for="payment__cardholder">ИМЯ ДЕРЖАТЕЛЯ</label>
                     </p>
 
                     <div class="payment__card-status-wrap">
-                      <p class="payment__card-status-message">Статус карты: <span class="payment__card-status">Не
-                          определён</span></p>
+                      <p class="payment__card-status-message">Статус карты: <span class="payment__card-status">Не определён</span></p>
                       <p class="payment__error-message visually-hidden">Система определяет ошибку и пишет где ошибка
                         под неправильным полем</p>
                     </div>
@@ -528,8 +527,11 @@
     </div>
   </template>
 
+  <script src="js/utils.js"></script>
+  <script src="js/data.js"></script>
   <script src="js/goods.js"></script>
   <script src="js/filter.js"></script>
+  <script src="js/order.js"></script>
 
 </body>
 
