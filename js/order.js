@@ -88,31 +88,24 @@
 
   var paymentCardDateInputCheck = function () {
     var patternDate = /(0[1-9]|1[012])\/(1[89]|[2-5][0-9])/;
-    if (patternDate.test(paymentCardDateInput.value)) {
-      paymentCardDateInput.setCustomValidity('');
-      return true;
-    } else {
-      paymentCardDateInput.setCustomValidity('Пожалуйста, проверьте дату');
-      return false;
-    }
+    var checkDate = patternDate.test(paymentCardDateInput.value);
+    var customValidityText = checkDate ? '' : 'Пожалуйста, проверьте дату';
+    paymentCardDateInput.setCustomValidity(customValidityText);
+    return checkDate;
   };
 
   var cvcInputCheck = function () {
-    if (cvcInput.value >= 100 && cvcInput.value <= 999) {
-      cvcInput.setCustomValidity('');
-      return true;
-    } else {
-      cvcInput.setCustomValidity('Пожалуйста, проверьте CVC');
-      return false;
-    }
+    var checkCVC = cvcInput.value >= 100 && cvcInput.value <= 999;
+    var customValidityText = checkCVC ? '' : 'Пожалуйста, проверьте CVC';
+    cvcInput.setCustomValidity(customValidityText);
+    return checkCVC;
   };
 
   var checkCardStatus = function () {
-    var statusCard = paymentCardInputCheck() && paymentCardDateInputCheck() && cvcInputCheck() && paymentCardholderInput.validity.valid ? paymentValidMessage.textContent = 'Одобрен' : paymentValidMessage.textContent = 'Не определён';
-    return statusCard;
+    paymentValidMessage.textContent = paymentCardInputCheck() && paymentCardDateInputCheck() && cvcInputCheck() && paymentCardholderInput.validity.valid ? 'Одобрен' : 'Не определён';
   };
 
-  // отправка данных на сервер
+  // отправка данных из формы на сервер
   var form = document.querySelector('.form-order');
   var modalSuccess = document.querySelector('.modal--success');
   var modalError = document.querySelector('.modal--error');
