@@ -59,16 +59,6 @@
   var paymentCardholderInput = document.querySelector('#payment__cardholder');
   var paymentValidMessage = document.querySelector('.payment__card-status');
 
-  var isDateInputCorrect = function () {
-    return paymentCardDateInput.validity.valid;
-  };
-  var isCvcInputCorrect = function () {
-    return cvcInput.value >= 100 && cvcInput.value <= 999;
-  };
-  var isCardholderInputCorrect = function () {
-    return paymentCardholderInput.validity.typeMismatch;
-  };
-
   var luhn = function (cardNumber) {
     if (cardNumber.length === 16) {
       var arr = cardNumber.split('').map(function (char, index) {
@@ -91,45 +81,67 @@
 
   var paymentCardInputCheck = function () {
     if (luhn(paymentCardInput.value)) {
-      paymentValidMessage.textContent = 'Одобрен';
       paymentCardInput.setCustomValidity('');
+      return true;
     } else {
-      paymentValidMessage.textContent = 'Не определён';
       paymentCardInput.setCustomValidity('Пожалуйста, проверьте номер карты.');
+      return false;
     }
   };
 
   var paymentCardDateInputCheck = function () {
-    if (isDateInputCorrect()) {
-      paymentValidMessage.textContent = 'Одобрен';
+    var patternDate = /(0[1-9]|1[012])\/(1[89]|[2-5][0-9])/;
+    if (paymentCardDateInput.value.search(patternDate) !== -1) {
+      paymentCardDateInput.setCustomValidity('');
+      return true;
     } else {
-      paymentValidMessage.textContent = 'Не определён';
       paymentCardDateInput.setCustomValidity('Пожалуйста, проверьте дату');
+      return false;
     }
   };
 
   var cvcInputCheck = function () {
-    if (isCvcInputCorrect()) {
-      paymentValidMessage.textContent = 'Одобрен';
+    if (cvcInput.value >= 100 && cvcInput.value <= 999) {
       cvcInput.setCustomValidity('');
+      return true;
     } else {
-      paymentValidMessage.textContent = 'Не определён';
       cvcInput.setCustomValidity('Пожалуйста, проверьте CVC');
+      return false;
     }
   };
 
   var cardholderInputCheck = function () {
-    if (!isCardholderInputCorrect()) {
-      paymentValidMessage.textContent = 'Одобрен';
+    if (paymentCardholderInput.value !== '') {
       paymentCardholderInput.setCustomValidity('');
+      return true;
     } else {
-      paymentValidMessage.textContent = 'Не определён';
       paymentCardholderInput.setCustomValidity('Пожалуйста, проверьте имя');
+      return false;
     }
   };
 
-  paymentCardInput.addEventListener('input', paymentCardInputCheck);
-  paymentCardDateInput.addEventListener('input', paymentCardDateInputCheck);
-  cvcInput.addEventListener('input', cvcInputCheck);
-  paymentCardholderInput.addEventListener('input', cardholderInputCheck);
+  var checkCardStatus = function () {
+    if (paymentCardInputCheck() && paymentCardDateInputCheck() && cvcInputCheck() && cardholderInputCheck()) {
+      paymentValidMessage.textContent = 'Одобрен';
+    } else {
+      paymentValidMessage.textContent = 'Не определён';
+    }
+  };
+
+  paymentCardInput.addEventListener('input', function () {
+    paymentCardInputCheck();
+    checkCardStatus();
+  });
+  paymentCardDateInput.addEventListener('input', function () {
+    paymentCardDateInputCheck();
+    checkCardStatus();
+  });
+  cvcInput.addEventListener('input', function () {
+    cvcInputCheck();
+    checkCardStatus();
+  });
+  paymentCardholderInput.addEventListener('input', function () {
+    cardholderInputCheck();
+    checkCardStatus();
+  });
 })();
