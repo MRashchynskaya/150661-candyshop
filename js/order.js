@@ -1,7 +1,7 @@
 'use strict';
 
 (function () {
-  // переменные для переключение вкладок способов доставки и оплаты
+  // переменные для переключение вкладок способов доставки и оплаты товаров
   var deliveryToggleBtn = document.querySelectorAll('.deliver .toggle-btn__input');
   var deliverStore = document.querySelector('.deliver__store');
   var deliverCourier = document.querySelector('.deliver__courier');
