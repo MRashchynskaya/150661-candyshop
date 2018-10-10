@@ -31,7 +31,9 @@
 
   // обработчик события на кнопки способа доставки и оплаты
   deliveryToggleBtn.forEach(function (itemBtn) {
-    itemBtn.addEventListener('change', toggleClassDelivery(itemBtn));
+    itemBtn.addEventListener('change', function () {
+      toggleClassDelivery(itemBtn);
+    });
   });
 
   payToggleBtn.forEach(function (item) {
