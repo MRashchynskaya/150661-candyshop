@@ -80,18 +80,15 @@
   };
 
   var paymentCardInputCheck = function () {
-    if (luhn(paymentCardInput.value)) {
-      paymentCardInput.setCustomValidity('');
-      return true;
-    } else {
-      paymentCardInput.setCustomValidity('Пожалуйста, проверьте номер карты.');
-      return false;
-    }
+    var checkLuhn = luhn(paymentCardInput.value);
+    var customValidityText = checkLuhn ? '' : 'Пожалуйста, проверьте номер карты.';
+    paymentCardInput.setCustomValidity(customValidityText);
+    return checkLuhn;
   };
 
   var paymentCardDateInputCheck = function () {
     var patternDate = /(0[1-9]|1[012])\/(1[89]|[2-5][0-9])/;
-    if (paymentCardDateInput.value.search(patternDate) !== -1) {
+    if (patternDate.test(paymentCardDateInput.value)) {
       paymentCardDateInput.setCustomValidity('');
       return true;
     } else {
@@ -110,38 +107,55 @@
     }
   };
 
-  var cardholderInputCheck = function () {
-    if (paymentCardholderInput.value !== '') {
-      paymentCardholderInput.setCustomValidity('');
-      return true;
-    } else {
-      paymentCardholderInput.setCustomValidity('Пожалуйста, проверьте имя');
-      return false;
-    }
-  };
-
   var checkCardStatus = function () {
-    if (paymentCardInputCheck() && paymentCardDateInputCheck() && cvcInputCheck() && cardholderInputCheck()) {
-      paymentValidMessage.textContent = 'Одобрен';
-    } else {
-      paymentValidMessage.textContent = 'Не определён';
-    }
+    var statusCard = paymentCardInputCheck() && paymentCardDateInputCheck() && cvcInputCheck() && paymentCardholderInput.validity.valid ? paymentValidMessage.textContent = 'Одобрен' : paymentValidMessage.textContent = 'Не определён';
+    return statusCard;
   };
 
-  paymentCardInput.addEventListener('input', function () {
-    paymentCardInputCheck();
-    checkCardStatus();
+  // отправка данных на сервер
+  var form = document.querySelector('.form-order');
+  var modalSuccess = document.querySelector('.modal--success');
+  var modalError = document.querySelector('.modal--error');
+  var ESC_KEYCODE = 27;
+
+  form.addEventListener('submit', function (evt) {
+    evt.preventDefault();
+    window.backend.upload(new FormData(form), onSucces, onError);
+    evt.preventDefault();
   });
-  paymentCardDateInput.addEventListener('input', function () {
-    paymentCardDateInputCheck();
-    checkCardStatus();
-  });
-  cvcInput.addEventListener('input', function () {
-    cvcInputCheck();
-    checkCardStatus();
-  });
-  paymentCardholderInput.addEventListener('input', function () {
-    cardholderInputCheck();
-    checkCardStatus();
-  });
+
+  var onSucces = function () {
+    modalSuccess.classList.remove('modal--hidden');
+
+    var modalClose = modalSuccess.querySelector('.modal__close');
+    modalClose.addEventListener('click', function () {
+      modalSuccess.classList.add('modal--hidden');
+    });
+
+    document.addEventListener('keydown', function (evt) {
+      if (evt.keyCode === ESC_KEYCODE) {
+        modalSuccess.classList.add('modal--hidden');
+      }
+    });
+  };
+
+  var onError = function () {
+    modalError.classList.remove('modal--hidden');
+
+    var modalClose = modalError.querySelector('.modal__close');
+    modalClose.addEventListener('click', function () {
+      modalError.classList.add('modal--hidden');
+    });
+
+    document.addEventListener('keydown', function (evt) {
+      if (evt.keyCode === ESC_KEYCODE) {
+        modalError.classList.add('modal--hidden');
+      }
+    });
+  };
+
+  paymentCardInput.addEventListener('input', checkCardStatus);
+  paymentCardDateInput.addEventListener('input', checkCardStatus);
+  cvcInput.addEventListener('input', checkCardStatus);
+  paymentCardholderInput.addEventListener('input', checkCardStatus);
 })();
