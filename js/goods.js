@@ -262,6 +262,7 @@
         }
       }
     } else {
+
       var productInCart = Object.assign({orderedAmount: 1}, goodsCards[currentIndex]);
       var inCartElement = inCartTemplate.cloneNode(true);
       inCartElement.querySelector('.card-order__title').textContent = productInCart.name;
@@ -279,6 +280,7 @@
       goodsCardsElement.classList.remove('goods__cards--empty');
       goodsCardsEmpty.classList.add('visually-hidden');
     }
+
     goodsCards[currentIndex].amount -= 1;
     changeGoodsCardClass(currentIndex);
     calcCartTotalCost();
@@ -291,4 +293,5 @@
   for (var i = 0; i < btnAddToCart.length; i++) {
     btnAddToCart[i].addEventListener('click', checkIsInStock);
   }
+
 })();
