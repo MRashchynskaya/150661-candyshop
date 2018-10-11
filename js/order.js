@@ -1,7 +1,7 @@
 'use strict';
 
 (function () {
-  // переменные для переключение вкладок способов доставки и оплаты
+  // переменные для переключение вкладок способов доставки и оплаты товаров
   var deliveryToggleBtn = document.querySelectorAll('.deliver .toggle-btn__input');
   var deliverStore = document.querySelector('.deliver__store');
   var deliverCourier = document.querySelector('.deliver__courier');
@@ -31,7 +31,9 @@
 
   // обработчик события на кнопки способа доставки и оплаты
   deliveryToggleBtn.forEach(function (itemBtn) {
-    itemBtn.addEventListener('change', toggleClassDelivery(itemBtn));
+    itemBtn.addEventListener('change', function () {
+      toggleClassDelivery(itemBtn);
+    });
   });
 
   payToggleBtn.forEach(function (item) {
@@ -57,16 +59,6 @@
   var paymentCardholderInput = document.querySelector('#payment__cardholder');
   var paymentValidMessage = document.querySelector('.payment__card-status');
 
-  var isDateInputCorrect = function () {
-    return paymentCardDateInput.validity.valid;
-  };
-  var isCvcInputCorrect = function () {
-    return cvcInput.value >= 100 && cvcInput.value <= 999;
-  };
-  var isCardholderInputCorrect = function () {
-    return paymentCardholderInput.validity.typeMismatch;
-  };
-
   var luhn = function (cardNumber) {
     if (cardNumber.length === 16) {
       var arr = cardNumber.split('').map(function (char, index) {
@@ -88,46 +80,75 @@
   };
 
   var paymentCardInputCheck = function () {
-    if (luhn(paymentCardInput.value)) {
-      paymentValidMessage.textContent = 'Одобрен';
-      paymentCardInput.setCustomValidity('');
-    } else {
-      paymentValidMessage.textContent = 'Не определён';
-      paymentCardInput.setCustomValidity('Пожалуйста, проверьте номер карты.');
-    }
+    var checkLuhn = luhn(paymentCardInput.value);
+    var customValidityText = checkLuhn ? '' : 'Пожалуйста, проверьте номер карты.';
+    paymentCardInput.setCustomValidity(customValidityText);
+    return checkLuhn;
   };
 
   var paymentCardDateInputCheck = function () {
-    if (isDateInputCorrect()) {
-      paymentValidMessage.textContent = 'Одобрен';
-    } else {
-      paymentValidMessage.textContent = 'Не определён';
-      paymentCardDateInput.setCustomValidity('Пожалуйста, проверьте дату');
-    }
+    var patternDate = /(0[1-9]|1[012])\/(1[89]|[2-5][0-9])/;
+    var checkDate = patternDate.test(paymentCardDateInput.value);
+    var customValidityText = checkDate ? '' : 'Пожалуйста, проверьте дату';
+    paymentCardDateInput.setCustomValidity(customValidityText);
+    return checkDate;
   };
 
   var cvcInputCheck = function () {
-    if (isCvcInputCorrect()) {
-      paymentValidMessage.textContent = 'Одобрен';
-      cvcInput.setCustomValidity('');
-    } else {
-      paymentValidMessage.textContent = 'Не определён';
-      cvcInput.setCustomValidity('Пожалуйста, проверьте CVC');
-    }
+    var checkCVC = cvcInput.value >= 100 && cvcInput.value <= 999;
+    var customValidityText = checkCVC ? '' : 'Пожалуйста, проверьте CVC';
+    cvcInput.setCustomValidity(customValidityText);
+    return checkCVC;
   };
 
-  var cardholderInputCheck = function () {
-    if (!isCardholderInputCorrect()) {
-      paymentValidMessage.textContent = 'Одобрен';
-      paymentCardholderInput.setCustomValidity('');
-    } else {
-      paymentValidMessage.textContent = 'Не определён';
-      paymentCardholderInput.setCustomValidity('Пожалуйста, проверьте имя');
-    }
+  var checkCardStatus = function () {
+    paymentValidMessage.textContent = paymentCardInputCheck() && paymentCardDateInputCheck() && cvcInputCheck() && paymentCardholderInput.validity.valid ? 'Одобрен' : 'Не определён';
   };
 
-  paymentCardInput.addEventListener('input', paymentCardInputCheck);
-  paymentCardDateInput.addEventListener('input', paymentCardDateInputCheck);
-  cvcInput.addEventListener('input', cvcInputCheck);
-  paymentCardholderInput.addEventListener('input', cardholderInputCheck);
+  // отправка данных из формы на сервер
+  var form = document.querySelector('.form-order');
+  var modalSuccess = document.querySelector('.modal--success');
+  var modalError = document.querySelector('.modal--error');
+  var ESC_KEYCODE = 27;
+
+  form.addEventListener('submit', function (evt) {
+    evt.preventDefault();
+    window.backend.upload(new FormData(form), onSucces, onError);
+    evt.preventDefault();
+  });
+
+  var onSucces = function () {
+    modalSuccess.classList.remove('modal--hidden');
+
+    var modalClose = modalSuccess.querySelector('.modal__close');
+    modalClose.addEventListener('click', function () {
+      modalSuccess.classList.add('modal--hidden');
+    });
+
+    document.addEventListener('keydown', function (evt) {
+      if (evt.keyCode === ESC_KEYCODE) {
+        modalSuccess.classList.add('modal--hidden');
+      }
+    });
+  };
+
+  var onError = function () {
+    modalError.classList.remove('modal--hidden');
+
+    var modalClose = modalError.querySelector('.modal__close');
+    modalClose.addEventListener('click', function () {
+      modalError.classList.add('modal--hidden');
+    });
+
+    document.addEventListener('keydown', function (evt) {
+      if (evt.keyCode === ESC_KEYCODE) {
+        modalError.classList.add('modal--hidden');
+      }
+    });
+  };
+
+  paymentCardInput.addEventListener('input', checkCardStatus);
+  paymentCardDateInput.addEventListener('input', checkCardStatus);
+  cvcInput.addEventListener('input', checkCardStatus);
+  paymentCardholderInput.addEventListener('input', checkCardStatus);
 })();

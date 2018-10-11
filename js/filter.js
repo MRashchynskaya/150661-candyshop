@@ -1,7 +1,7 @@
 'use strict';
 
 (function () {
-  // шкала фильтра цены
+  // шкала фильтра цены в каталоге
   var priceRangeBar = document.querySelector('.range__filter'); // вся шкала фильтра
   var priceRangeBtnLeft = priceRangeBar.querySelector('.range__btn--left'); // левый ползунок (пин)
   var priceRangeBtnRight = priceRangeBar.querySelector('.range__btn--right'); // правый ползунок (пин)

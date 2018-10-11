@@ -1,7 +1,9 @@
 'use strict';
 
 (function () {
-  // переменная-массив для объектов - товаров в корзине
+  // переменная-массив для объектов товаров в корзине - получаем данные из модуля data
+  var goodsCards = window.data.goodsCards;
+  // переменная-массив для объектов товаров в корзине
   var cart = [];
   var cartTotalCost = 0;
   // найдём элемент, в который мы будем вставлять карточки товаров
@@ -64,7 +66,7 @@
     return fragment;
   };
 
-  catalogCardsElement.appendChild(createAllCards(window.data.goodsCards));
+  catalogCardsElement.appendChild(createAllCards(goodsCards));
 
   // При нажатии на кнопку избранного .card__btn-favorite в карточке товара, этой кнопке должен добавляться класс card__btn-favorite--selected, который помечал бы её как избранную
   var btnFavProd = document.querySelectorAll('.card__btn-favorite');
@@ -97,17 +99,17 @@
 
   // функция изменения класса карточки в зависимости от текущего кол-ва товара (вид кнопки "Добавить +1")
   var changeGoodsCardClass = function (currentIndex) {
-    for (var k = 0; k < window.data.goodsCards.length; k++) {
-      if (window.data.goodsCards[k].cardIndex === currentIndex) {
-        if (window.data.goodsCards[k].amount > 0 && window.data.goodsCards[k].amount <= 5) {
-          window.data.goodsCards[k].elem.classList.remove('card--in-stock', 'card--soon');
-          window.data.goodsCards[k].elem.classList.add('card--little');
-        } else if (window.data.goodsCards[k].amount === 0) {
-          window.data.goodsCards[k].elem.classList.remove('card--in-stock', 'card--little', 'card--soon');
-          window.data.goodsCards[k].elem.classList.add('card--soon');
+    for (var k = 0; k < goodsCards.length; k++) {
+      if (goodsCards[k].cardIndex === currentIndex) {
+        if (goodsCards[k].amount > 0 && goodsCards[k].amount <= 5) {
+          goodsCards[k].elem.classList.remove('card--in-stock', 'card--soon');
+          goodsCards[k].elem.classList.add('card--little');
+        } else if (goodsCards[k].amount === 0) {
+          goodsCards[k].elem.classList.remove('card--in-stock', 'card--little', 'card--soon');
+          goodsCards[k].elem.classList.add('card--soon');
         } else {
-          window.data.goodsCards[k].elem.classList.remove('card--in-stock', 'card--little', 'card--soon');
-          window.data.goodsCards[k].elem.classList.add('card--in-stock');
+          goodsCards[k].elem.classList.remove('card--in-stock', 'card--little', 'card--soon');
+          goodsCards[k].elem.classList.add('card--in-stock');
         }
         break;
       }
@@ -126,9 +128,9 @@
         break;
       }
     }
-    for (var k = 0; k < window.data.goodsCards.length; k++) {
-      if (window.data.goodsCards[k].cardIndex === deleteCardIndex) {
-        window.data.goodsCards[k].amount = amountToDelete;
+    for (var k = 0; k < goodsCards.length; k++) {
+      if (goodsCards[k].cardIndex === deleteCardIndex) {
+        goodsCards[k].amount = amountToDelete;
         break;
       }
     }
@@ -166,9 +168,9 @@
           calcCartTotalCost();
           headerCartText = 'В корзине ' + cart.length + ' товаров ' + 'на ' + cartTotalCost + '₽';
           headerCart.textContent = headerCartText;
-          for (var k = 0; k < window.data.goodsCards.length; k++) {
-            if (window.data.goodsCards[k].cardIndex === changeCardIndex) {
-              window.data.goodsCards[k].amount -= changeValue;
+          for (var k = 0; k < goodsCards.length; k++) {
+            if (goodsCards[k].cardIndex === changeCardIndex) {
+              goodsCards[k].amount -= changeValue;
               break;
             }
           }
@@ -199,7 +201,7 @@
     var currentBtn = e.target;
     var currentCard = currentBtn.closest('.catalog__card');
     var currentCardIndex = parseInt(currentCard.dataset.cardIndex, 10);
-    if (window.data.goodsCards[currentCardIndex].amount !== 0) {
+    if (goodsCards[currentCardIndex].amount !== 0) {
       addNewProductInCart(currentCardIndex, checkIsInCart(currentCardIndex));
     }
     //   alert('Извините данного товара нет в наличии');
@@ -234,7 +236,8 @@
         }
       }
     } else {
-      var productInCart = Object.assign({orderedAmount: 1}, window.data.goodsCards[currentIndex]);
+
+      var productInCart = Object.assign({orderedAmount: 1}, goodsCards[currentIndex]);
       var inCartElement = inCartTemplate.cloneNode(true);
       inCartElement.querySelector('.card-order__title').textContent = productInCart.name;
       inCartElement.querySelector('.card-order__img').src = productInCart.picture;
@@ -251,7 +254,8 @@
       goodsCardsElement.classList.remove('goods__cards--empty');
       goodsCardsEmpty.classList.add('visually-hidden');
     }
-    window.data.goodsCards[currentIndex].amount -= 1;
+
+    goodsCards[currentIndex].amount -= 1;
     changeGoodsCardClass(currentIndex);
     calcCartTotalCost();
     headerCartText = 'В корзине ' + cart.length + ' товаров ' + 'на ' + cartTotalCost + '₽';
@@ -263,4 +267,5 @@
   for (var i = 0; i < btnAddToCart.length; i++) {
     btnAddToCart[i].addEventListener('click', checkIsInStock);
   }
+
 })();

@@ -159,8 +159,8 @@
 
     <section class="buy">
       <h2 class="visually-hidden">Оформление покупки</h2>
+      <form class="form-order" action="/" method="POST" type="multipart/form-data">
 
-      <form action="https://js.dump.academy/candyshop" method="POST" type="multipart/form-data">
         <section class="goods">
           <div class="goods__wrap container">
             <h2 class="group-title goods__title" id="basket">Твои покупки</h2>
@@ -193,15 +193,14 @@
                 <li class="text-input contact-data__input-wrap">
 
                   <input type="text" class="text-input__input" name="name" id="contact-data__name" placeholder="Имя"
-                    pattern="[A-Za-zА-Яа-яЁё\s]{2,30}" title="Введите Ваше имя латинскими или русскими буквами"
-                    required>               
-
+                    pattern="[A-Za-zА-Яа-яЁё\s]{2,30}" title="Введите Ваше имя латинскими или русскими буквами" required>
                   <label for="contact-data__name" class="text-input__label">Имя</label>
                 </li>
 
                 <li class="text-input contact-data__input-wrap">
-
-                  <input type="tel" class="text-input__input" name="tel" id="contact-data__tel" placeholder="Телефон" required>
+                  
+                  <input type="tel" class="text-input__input" name="tel" id="contact-data__tel" placeholder="Телефон"
+                    required>
                   <label for="contact-data__tel" class="text-input__label">Телефон</label>
                 </li>
 
@@ -238,9 +237,8 @@
                 <div class="payment__inputs">
                   <div class="payment__card-group">
                     <p class="text-input text-input--light payment__input-wrap payment__input-wrap--card-number">
-                      
-                      <input type="text" class="text-input__input" name="card-number" id="payment__card-number"
-                        placeholder="Номер карты" required title="Введите номер Вашей карты: 16 цифр">
+
+                      <input type="text" class="text-input__input" name="card-number" id="payment__card-number" placeholder="Номер карты" required title="Введите номер Вашей карты: 16 цифр">
                       <label class="text-input__label" for="payment__card-number">Номер карты</label>
                     </p>
 
@@ -248,7 +246,6 @@
 
                       <input type="text" class="text-input__input" name="card-date" id="payment__card-date" placeholder="мм/гг"
                       required title="Корректный формат даты: мм/гг">
-
                       <label class="text-input__label" for="payment__card-date">мм/гг</label>
                     </p>
 
@@ -263,8 +260,7 @@
                   <div class="payment__cardholder-group">
                     <p class="text-input text-input--light payment__input-wrap payment__input-wrap--cardholder">
 
-                      <input type="text" class="text-input__input" name="cardholder" id="payment__cardholder"
-                        placeholder="ИМЯ ДЕРЖАТЕЛЯ" required title="Введите Ваше имя латинскими символами">       
+                      <input type="text" class="text-input__input" name="cardholder" id="payment__cardholder" placeholder="ИМЯ ДЕРЖАТЕЛЯ" required title="Введите Ваше имя латинскими символами">
                       <label class="text-input__label" for="payment__cardholder">ИМЯ ДЕРЖАТЕЛЯ</label>
                     </p>
 
@@ -450,7 +446,7 @@
     </div>
   </footer>
 
-  <section class="modal modal--hidden">
+  <section class="modal modal--error modal--hidden">
     <div class="modal__inner">
       <button class="modal__close" type="button">Закрыть окно</button>
       <h3 class="modal__title">Произошла ошибка!</h3>
@@ -459,7 +455,7 @@
     </div>
   </section>
 
-  <section class="modal modal--hidden">
+  <section class="modal modal--success modal--hidden">
     <div class="modal__inner">
       <button class="modal__close" type="button">Закрыть окно</button>
       <h3 class="modal__title">Данные успешно отправлены!</h3>
@@ -535,6 +531,7 @@
   </template>
 
   <script src="js/utils.js"></script>
+  <script src="js/backend.js"></script>
   <script src="js/data.js"></script>
   <script src="js/goods.js"></script>
   <script src="js/filter.js"></script>
