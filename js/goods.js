@@ -1,8 +1,9 @@
 'use strict';
 
 (function () {
-  // переменная-массив для объектов товаров в корзине - получаем данные из модуля data
-  var goodsCards = window.data.goodsCards;
+  // переменная-массив для объектов товаров в корзине
+  // var goodsCards = window.data.goodsCards;
+  var goodsCards = [];
   // переменная-массив для объектов товаров в корзине
   var cart = [];
   var cartTotalCost = 0;
@@ -26,6 +27,38 @@
   var headerCart = document.querySelector('.main-header__basket');
   var headerCartText;
   var headerCartEmpty = 'В корзине ничего нет';
+  var errorPopup = document.querySelector('.modal--error');
+  var errorPopupClose = errorPopup.querySelector('.modal__close');
+  var errorMessage = errorPopup.querySelector('.modal__message');
+
+  var fillGoodsCards = function (data) {
+    goodsCards = data;
+    for (var i = 0; i < goodsCards.length; i++) {
+      goodsCards[i].cardIndex = i;
+    }
+    catalogCardsElement.appendChild(createAllCards(goodsCards));
+    // Убераем у блока catalog__cards класс catalog__cards--load
+    document.querySelector('.catalog__cards').classList.remove('catalog__cards--load');
+    // Скрываем при помощи класса visually-hidden блок catalog__load
+    document.querySelector('.catalog__load').classList.add('visually-hidden');
+    return goodsCards;
+  };
+
+  // функция обработчик клика по кнопке закрытия блока сообщения об ошибке
+  var onClickCloseError = function (evt) {
+    errorPopup.classList.add('modal--hidden');
+    evt.target.removeEventListener('click', onClickCloseError);
+  };
+
+  // функция, открывающая этот блок, если произошла ошибка при получении данных с сервера
+  var onError = function (str) {
+    errorPopup.classList.remove('modal--hidden');
+    errorPopupClose.addEventListener('click', onClickCloseError);
+    errorMessage.textContent = str;
+  };
+
+  // запускаем загрузку данных с сервера
+  window.backend.load(fillGoodsCards, onError);
 
   // Функция создания DOM-элемента - карточки товара
   var createCatalogCard = function (goodsCard) {
@@ -39,7 +72,7 @@
       cardElement.classList.add('card--little');
     }
     cardElement.querySelector('.card__title').textContent = goodsCard.name;
-    cardElement.querySelector('.card__img').src = goodsCard.picture;
+    cardElement.querySelector('.card__img').src = 'img/cards/' + goodsCard.picture;
     cardElement.querySelector('.card__img').alt = goodsCard.name;
     cardElement.querySelector('.card__price-value').textContent = goodsCard.price + ' ';
     cardElement.querySelector('.card__weight').textContent = ' ' + goodsCard.weight + ' Г';
@@ -66,8 +99,6 @@
     return fragment;
   };
 
-  catalogCardsElement.appendChild(createAllCards(goodsCards));
-
   // При нажатии на кнопку избранного .card__btn-favorite в карточке товара, этой кнопке должен добавляться класс card__btn-favorite--selected, который помечал бы её как избранную
   var btnFavProd = document.querySelectorAll('.card__btn-favorite');
 
@@ -80,11 +111,6 @@
   for (var j = 0; j < btnFavProd.length; j++) {
     btnFavProd[j].addEventListener('click', addFavProd);
   }
-
-  // Убераем у блока catalog__cards класс catalog__cards--load
-  document.querySelector('.catalog__cards').classList.remove('catalog__cards--load');
-  // Скрываем при помощи класса visually-hidden блок catalog__load
-  document.querySelector('.catalog__load').classList.add('visually-hidden');
 
   // ТОВАРЫ В КОРЗИНЕ
   // алгоритм:

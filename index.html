@@ -160,7 +160,7 @@
     <section class="buy">
       <h2 class="visually-hidden">Оформление покупки</h2>
 
-      <form action="https://js.dump.academy/candyshop" method="POST" type="multipart/form-data">
+      <form class="form-order" action="/" method="POST" type="multipart/form-data">
         <section class="goods">
           <div class="goods__wrap container">
             <h2 class="group-title goods__title" id="basket">Твои покупки</h2>
@@ -443,7 +443,7 @@
     </div>
   </footer>
 
-  <section class="modal modal--hidden">
+  <section class="modal modal--error modal--hidden">
     <div class="modal__inner">
       <button class="modal__close" type="button">Закрыть окно</button>
       <h3 class="modal__title">Произошла ошибка!</h3>
@@ -452,7 +452,7 @@
     </div>
   </section>
 
-  <section class="modal modal--hidden">
+  <section class="modal modal--success modal--hidden">
     <div class="modal__inner">
       <button class="modal__close" type="button">Закрыть окно</button>
       <h3 class="modal__title">Данные успешно отправлены!</h3>
@@ -528,7 +528,8 @@
   </template>
 
   <script src="js/utils.js"></script>
-  <script src="js/data.js"></script>
+  <script src="js/backend.js"></script>
+  <!-- <script src="js/data.js"></script> -->
   <script src="js/goods.js"></script>
   <script src="js/filter.js"></script>
   <script src="js/order.js"></script>
