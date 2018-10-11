@@ -156,6 +156,7 @@
 
   // УНИВЕРСАЛЬНАЯ функция уменьшения и увеличения кол-ва товара в корзине
   var changeOrderedAmount = function (currentBtn, changeValue, changeCardIndex) {
+
     for (var i = 0; i < cart.length; i++) {
       if (cart[i].cardIndex === changeCardIndex) {
         cart[i].orderedAmount += changeValue;
@@ -178,6 +179,7 @@
         break;
       }
     }
+
     changeGoodsCardClass(changeCardIndex);
   };
 
@@ -265,4 +267,5 @@
   for (var i = 0; i < btnAddToCart.length; i++) {
     btnAddToCart[i].addEventListener('click', checkIsInStock);
   }
+
 })();
