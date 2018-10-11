@@ -191,15 +191,17 @@
 
               <ul class="contact-data__inputs">
                 <li class="text-input contact-data__input-wrap">
+
                   <input type="text" class="text-input__input" name="name" id="contact-data__name" placeholder="Имя"
                     pattern="[A-Za-zА-Яа-яЁё\s]{2,30}" title="Введите Ваше имя латинскими или русскими буквами"
-                    required>
+                    required>               
+
                   <label for="contact-data__name" class="text-input__label">Имя</label>
                 </li>
 
                 <li class="text-input contact-data__input-wrap">
-                  <input type="tel" class="text-input__input" name="tel" id="contact-data__tel" placeholder="Телефон"
-                    required>
+
+                  <input type="tel" class="text-input__input" name="tel" id="contact-data__tel" placeholder="Телефон" required>
                   <label for="contact-data__tel" class="text-input__label">Телефон</label>
                 </li>
 
@@ -236,18 +238,22 @@
                 <div class="payment__inputs">
                   <div class="payment__card-group">
                     <p class="text-input text-input--light payment__input-wrap payment__input-wrap--card-number">
+                      
                       <input type="text" class="text-input__input" name="card-number" id="payment__card-number"
                         placeholder="Номер карты" required title="Введите номер Вашей карты: 16 цифр">
                       <label class="text-input__label" for="payment__card-number">Номер карты</label>
                     </p>
 
                     <p class="text-input text-input--light payment__input-wrap payment__input-wrap--card-date">
+
                       <input type="text" class="text-input__input" name="card-date" id="payment__card-date" placeholder="мм/гг"
                       required title="Корректный формат даты: мм/гг">
+
                       <label class="text-input__label" for="payment__card-date">мм/гг</label>
                     </p>
 
                     <p class="text-input text-input--light payment__input-wrap payment__input-wrap--cvc">
+
                       <input type="password" class="text-input__input" name="card-cvc" id="payment__card-cvc"
                         placeholder="CVC" required title="Корректный формат CVC: число от 100 до 999">
                       <label class="text-input__label text-input__label--lock" for="payment__card-cvc">CVC</label>
@@ -256,8 +262,9 @@
                   </div>
                   <div class="payment__cardholder-group">
                     <p class="text-input text-input--light payment__input-wrap payment__input-wrap--cardholder">
+
                       <input type="text" class="text-input__input" name="cardholder" id="payment__cardholder"
-                        placeholder="ИМЯ ДЕРЖАТЕЛЯ" required title="Введите Ваше имя латинскими символами">
+                        placeholder="ИМЯ ДЕРЖАТЕЛЯ" required title="Введите Ваше имя латинскими символами">       
                       <label class="text-input__label" for="payment__cardholder">ИМЯ ДЕРЖАТЕЛЯ</label>
                     </p>
 
