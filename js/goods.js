@@ -306,6 +306,4 @@
   // запускаем загрузку данных с сервера
   window.backend.load(fillGoodsCards, onError);
 
-  
-
 })();
