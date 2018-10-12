@@ -2,6 +2,9 @@
 
 // весь код - в IIFE, анонимная самовызывющаяся функция
 (function () {
+  var DEBOUNCE_INTERVAL = 500;
+  var lastTimeout;
+
   // функция генерации случайного номера элемента массива
   var getRandomArrayElement = function (arr) {
     return arr[Math.floor(Math.random() * arr.length)];
@@ -22,9 +25,27 @@
     }
     return arr;
   };
+
+  // поиск по индексу элемента в массиве
+  var getUnique = function (arr) {
+    return arr.filter(function (item, index, array) {
+      return array.indexOf(item) === index;
+    });
+  };
+
+  // устранение "эффекта дребезга"
+  var debounce = function (fun, param) {
+    if (lastTimeout) {
+      window.clearTimeout(lastTimeout);
+    }
+    lastTimeout = window.setTimeout(fun, DEBOUNCE_INTERVAL, param);
+  };
+
   window.util = {
     getRandomArrayElement: getRandomArrayElement,
     getRandomNumber: getRandomNumber,
-    shuffleArray: shuffleArray
+    shuffleArray: shuffleArray,
+    debounce: debounce,
+    getUnique: getUnique
   };
 })();
