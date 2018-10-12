@@ -119,7 +119,7 @@
     sortFilterInputs[0].checked = true;
   };
 
-  var applyFilterToType = function (evt, goods) {
+  var applyFilterToType = function (goods) {
     var activeTypeInputs = [];
     getActivInputsValue(typeFilterInputs, activeTypeInputs);
     if (activeTypeInputs.length === 0) {
@@ -137,7 +137,7 @@
     return filterArray;
   };
 
-  var applyFilterToProperty = function (evt, goods) {
+  var applyFilterToProperty = function (goods) {
     var activePropInputs = [];
     getActivInputsValue(propertyFilterInputs, activePropInputs);
     if (activePropInputs.length === 0) {
@@ -162,7 +162,7 @@
     return getUnique(filterArray);
   };
 
-  var applyFilterToPrice = function (evt, goods) {
+  var applyFilterToPrice = function (goods) {
     var rangePriceMinValue = document.querySelector('.range__price--min').textContent;
     var rangePriceMaxValue = document.querySelector('.range__price--max').textContent;
     filteredGoods = goods.filter(function (item) {
@@ -175,7 +175,7 @@
     return filteredGoods;
   };
 
-  var sortFilter = function (evt, goods) {
+  var sortFilter = function (goods) {
     for (var l = 0; l < sortFilterInputs.length; l++) {
       if (sortFilterInputs[l].checked) {
         if (sortFilterInputs[l].value === 'popular') {
@@ -205,19 +205,29 @@
 
   var activeFilters = [applyFilterToType, applyFilterToProperty, applyFilterToPrice, sortFilter];
 
+  var applyFilters = function () {
+    var updateGoodsCollection = window.goods.updateGoodsCollection;
+    var favoriteList = window.goods.favoriteList;
+    filteredGoods = (favoriteInput.checked && favoriteList) ? favoriteList : window.goodsData;
+
+    activeFilters.forEach(function (func) {
+      filteredGoods = func(filteredGoods);
+    });
+
+    window.util.debounce(updateGoodsCollection, filteredGoods);
+  };
+
   var clickFilterHandler = function (evt) {
     if (evt.target.classList.contains('input-btn__input') ||
-        evt.target.classList.contains('range__btn') ||
-        evt.target.classList.contains('range__filter') ||
         evt.target.classList.contains('catalog__filter')
     ) {
       var updateGoodsCollection = window.goods.updateGoodsCollection;
       var goods = window.goodsData;
       var favoriteList = window.goods.favoriteList;
       filteredGoods = (favoriteInput.checked && favoriteList) ? favoriteList : goods;
-      activeFilters.forEach(function (func) {
-        filteredGoods = func(evt, filteredGoods);
-      });
+
+      applyFilters();
+
       if (evt.target === favoriteInput) {
         findPriceValue(goods);
         resetFilters();
@@ -266,7 +276,6 @@
   var priceRangeBtnHandler = function (evt, buttonElement, minLeft, maxRight, priceEl, isLeftBtn) {
     var shiftX = evt.clientX - buttonElement.getBoundingClientRect().left; // поправка - расст. от курсора до левой границы пина
     document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mousemove', clickFilterHandler);
     document.addEventListener('mouseup', onMouseUp);
 
     function onMouseMove(event) {
@@ -288,12 +297,13 @@
         priceRangeLine.style.right = priceRangeBarWidth - newLeft + shiftX + 'px'; // если пин НЕ левый - двигаем ПРАВУЮ границу заполняющей полосы
         positionBtnRight = newLeft; // текущую координату правого пина - в переменную позиции правого пина
       }
+
+      applyFilters();
     }
 
     function onMouseUp() {
       document.removeEventListener('mouseup', onMouseUp);
       document.removeEventListener('mousemove', onMouseMove);
-      document.removeEventListener('mousemove', clickFilterHandler);
     }
   };
 
