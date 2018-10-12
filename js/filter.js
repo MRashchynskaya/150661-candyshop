@@ -208,7 +208,8 @@
   var clickFilterHandler = function (evt) {
     if (evt.target.classList.contains('input-btn__input') ||
         evt.target.classList.contains('range__btn') ||
-        evt.target.classList.contains('range__filter')
+        evt.target.classList.contains('range__filter') ||
+        evt.target.classList.contains('catalog__filter')
     ) {
       var updateGoodsCollection = window.goods.updateGoodsCollection;
       var goods = window.goodsData;
@@ -265,6 +266,7 @@
   var priceRangeBtnHandler = function (evt, buttonElement, minLeft, maxRight, priceEl, isLeftBtn) {
     var shiftX = evt.clientX - buttonElement.getBoundingClientRect().left; // поправка - расст. от курсора до левой границы пина
     document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mousemove', clickFilterHandler);
     document.addEventListener('mouseup', onMouseUp);
 
     function onMouseMove(event) {
@@ -291,6 +293,7 @@
     function onMouseUp() {
       document.removeEventListener('mouseup', onMouseUp);
       document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mousemove', clickFilterHandler);
     }
   };
 
