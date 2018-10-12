@@ -254,7 +254,6 @@
 
   var clickSubmitBtnHandler = function (evt) {
     var updateGoodsCollection = window.goods.updateGoodsCollection;
-    // var goods = window.goodsData;
     evt.preventDefault();
     findPriceValue(window.goodsData);
     resetFilters();

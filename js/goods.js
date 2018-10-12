@@ -99,7 +99,6 @@
     cardElement.querySelector('.card__characteristic').textContent = containSugar + nutritionFactsObject.energy + ' ккал';
     cardElement.querySelector('.card__composition-list').textContent = nutritionFactsObject.contents;
     cardElement.dataset.cardIndex = goodsCard.cardIndex;
-    // cardElement.setAttribute('data-cardIndex', goodsCard.cardIndex);
     goodsCard.elem = cardElement;
     return cardElement;
   };
