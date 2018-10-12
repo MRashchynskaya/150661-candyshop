@@ -3,28 +3,31 @@
 (function () {
   // переменные для переключение вкладок способов доставки и оплаты товаров
   var deliveryToggleBtn = document.querySelectorAll('.deliver .toggle-btn__input');
-  var deliverStore = document.querySelector('.deliver__store');
-  var deliverCourier = document.querySelector('.deliver__courier');
+  var deliveryStore = document.querySelector('.deliver__store');
+  var deliveryCourier = document.querySelector('.deliver__courier');
   var payToggleBtn = document.querySelectorAll('.payment .toggle-btn__input');
   var payCard = document.querySelector('.payment__card-wrap');
   var payCash = document.querySelector('.payment__cash-wrap');
   var paymentCardAllInputs = document.querySelectorAll('.payment__inputs input');
-  var deliverCourierAllInputs = document.querySelectorAll('.deliver__courier input, .deliver__courier textarea');
-  var deliverStoreInputs = document.querySelectorAll('.deliver__store-list input');
+  var deliveryCourierAllInputs = document.querySelectorAll('.deliver__courier input, .deliver__courier textarea');
+  var deliveryStoreInputs = document.querySelectorAll('.deliver__store-list input');
+  var deliveryStoreMetroList = document.querySelector('.deliver__store-list');
+  var deliveryStoreMapImg = document.querySelector('.deliver__store-map-img');
+  var deliveryStoreAddress = document.querySelector('.deliver__store-describe');
 
   // по умолчанию блокируем поля данных для способа "Курьером"
-  deliverCourierAllInputs.forEach(function (itemInput) {
+  deliveryCourierAllInputs.forEach(function (itemInput) {
     itemInput.disabled = true;
   });
 
   // меняем класс видимости и блокируем инпуты для способов доставки
   var toggleClassDelivery = function (item) {
-    deliverStore.classList.toggle('visually-hidden', item.value === 'courier');
-    deliverCourier.classList.toggle('visually-hidden', item.value === 'store');
-    deliverCourierAllInputs.forEach(function (itemInput) {
+    deliveryStore.classList.toggle('visually-hidden', item.value === 'courier');
+    deliveryCourier.classList.toggle('visually-hidden', item.value === 'store');
+    deliveryCourierAllInputs.forEach(function (itemInput) {
       itemInput.disabled = item.value === 'store';
     });
-    deliverStoreInputs.forEach(function (itemInput) {
+    deliveryStoreInputs.forEach(function (itemInput) {
       itemInput.disabled = item.value === 'courier';
     });
   };
@@ -151,4 +154,51 @@
   paymentCardDateInput.addEventListener('input', checkCardStatus);
   cvcInput.addEventListener('input', checkCardStatus);
   paymentCardholderInput.addEventListener('input', checkCardStatus);
+
+  // смена карты и адреса при выборе станции метро
+
+
+  deliveryStoreMetroList.addEventListener('change', function (evt) {
+    if (evt.target.id === 'store-academicheskaya') {
+      deliveryStoreMapImg.src = 'img/map/academicheskaya.jpg';
+      deliveryStoreAddress.textContent = 'проспект Науки, д. 19, корп. 3, литер А, ТК «Платформа», 3-й этаж, секция 310';
+    }
+    if (evt.target.id === 'store-vasileostrovskaya') {
+      deliveryStoreMapImg.src = 'img/map/vasileostrovskaya.jpg';
+      deliveryStoreAddress.textContent = 'м. Василеостровская, д. 59, корп. 3, 3-й этаж, секция 210';
+    }
+    if (evt.target.id === 'store-rechka') {
+      deliveryStoreMapImg.src = 'img/map/rechka.jpg';
+      deliveryStoreAddress.textContent = 'м. Черная речка, д. 16, 1-й этаж';
+    }
+    if (evt.target.id === 'store-petrogradskaya') {
+      deliveryStoreMapImg.src = 'img/map/petrogradskaya.jpg';
+      deliveryStoreAddress.textContent = 'м. Петроградская, д. 89, корп. 3, литер А, 3-й этаж, секция 310';
+    }
+    if (evt.target.id === 'store-proletarskaya') {
+      deliveryStoreMapImg.src = 'img/map/proletarskaya.jpg';
+      deliveryStoreAddress.textContent = 'м. Пролетарская, д. 75, корп. 4, 2-й этаж';
+    }
+    if (evt.target.id === 'store-vostaniya') {
+      deliveryStoreMapImg.src = 'img/map/vostaniya.jpg';
+      deliveryStoreAddress.textContent = 'м. Восстания, д. 44, корп. 7, 2-й этаж';
+    }
+    if (evt.target.id === 'store-prosvesheniya') {
+      deliveryStoreMapImg.src = 'img/map/prosvesheniya.jpg';
+      deliveryStoreAddress.textContent = 'м. Просвещения, д. 19, корп. 4, 1-й этаж';
+    }
+    if (evt.target.id === 'store-frunzenskaya') {
+      deliveryStoreMapImg.src = 'img/map/frunzenskaya.jpg';
+      deliveryStoreAddress.textContent = 'м. Фрунзенская, д. 77, корп. 4, 1-й этаж';
+    }
+    if (evt.target.id === 'store-chernishevskaya') {
+      deliveryStoreMapImg.src = 'img/map/chernishevskaya.jpg';
+      deliveryStoreAddress.textContent = 'м. Чернышевская, д. 75, корп. 4, 2-й этаж';
+    }
+    if (evt.target.id === 'store-tehinstitute') {
+      deliveryStoreMapImg.src = 'img/map/tehinstitute.jpg';
+      deliveryStoreAddress.textContent = 'м. Технологический институт, д. 55, корп. 7, 3-й этаж';
+    }
+  });
+
 })();

@@ -74,11 +74,11 @@
       nutritionFacts.forEach(function (fact, j) {
 
         if (fact === 'vegetarian') {
-          if (goods[i].nutritionFacts[fact] === true) {
+          if (goods[i].nutritionFacts[fact]) {
             nutritionFactsCounts[j]++;
           }
         } else {
-          if (goods[i].nutritionFacts[fact] === false) {
+          if (!goods[i].nutritionFacts[fact]) {
             nutritionFactsCounts[j]++;
           }
         }
@@ -103,7 +103,7 @@
 
   var getActivInputsValue = function (inputs, activeInputs) {
     for (var z = 0; z < inputs.length; z++) {
-      if (inputs[z].checked === true) {
+      if (inputs[z].checked) {
         activeInputs.push(inputs[z].value);
       }
     }
@@ -147,15 +147,15 @@
     for (var k = 0; k < activePropInputs.length; k++) {
       if (activePropInputs[k] === 'sugar-free') {
         filterArray = filterArray.concat(goods.filter(function (item) {
-          return item.nutritionFacts.sugar === false;
+          return !item.nutritionFacts.sugar;
         }));
       } else if (activePropInputs[k] === 'vegetarian') {
         filterArray = filterArray.concat(goods.filter(function (item) {
-          return item.nutritionFacts.vegetarian === true;
+          return item.nutritionFacts.vegetarian;
         }));
       } else if (activePropInputs[k] === 'gluten-free') {
         filterArray = filterArray.concat(goods.filter(function (item) {
-          return item.nutritionFacts.gluten === false;
+          return !item.nutritionFacts.gluten;
         }));
       }
     }
