@@ -1,8 +1,8 @@
 'use strict';
 
 (function () {
-  // переменная-массив для объектов товаров в корзине - получаем данные из модуля data
-  var goodsCards = window.data.goodsCards;
+  // переменная-массив для объектов товаров в корзине
+  var goodsCards = [];
   // переменная-массив для объектов товаров в корзине
   var cart = [];
   var cartTotalCost = 0;
@@ -26,6 +26,41 @@
   var headerCart = document.querySelector('.main-header__basket');
   var headerCartText;
   var headerCartEmpty = 'В корзине ничего нет';
+  var errorPopup = document.querySelector('.modal--error');
+  var errorPopupClose = errorPopup.querySelector('.modal__close');
+  var errorMessage = errorPopup.querySelector('.modal__message');
+  var ESC_KEYCODE = 27;
+
+  var fillGoodsCards = function (data) {
+    goodsCards = data;
+    for (var i = 0; i < goodsCards.length; i++) {
+      goodsCards[i].cardIndex = i;
+    }
+    catalogCardsElement.appendChild(createAllCards(goodsCards));
+    // Убераем у блока catalog__cards класс catalog__cards--load
+    document.querySelector('.catalog__cards').classList.remove('catalog__cards--load');
+    // Скрываем при помощи класса visually-hidden блок catalog__load
+    document.querySelector('.catalog__load').classList.add('visually-hidden');
+    addEventsForCardButtons();
+  };
+
+  // функция обработчик клика по кнопке закрытия блока сообщения об ошибке
+  var onClickCloseError = function (evt) {
+    errorPopup.classList.add('modal--hidden');
+    evt.target.removeEventListener('click', onClickCloseError);
+  };
+
+  // функция, открывающая окно с ошибкой, если произошла ошибка при получении данных с сервера
+  var onError = function (str) {
+    errorPopup.classList.remove('modal--hidden');
+    errorMessage.textContent = str;
+    errorPopupClose.addEventListener('click', onClickCloseError);
+    document.addEventListener('keydown', function (evt) {
+      if (evt.keyCode === ESC_KEYCODE) {
+        errorPopup.classList.add('modal--hidden');
+      }
+    });
+  };
 
   // Функция создания DOM-элемента - карточки товара
   var createCatalogCard = function (goodsCard) {
@@ -39,7 +74,7 @@
       cardElement.classList.add('card--little');
     }
     cardElement.querySelector('.card__title').textContent = goodsCard.name;
-    cardElement.querySelector('.card__img').src = goodsCard.picture;
+    cardElement.querySelector('.card__img').src = 'img/cards/' + goodsCard.picture;
     cardElement.querySelector('.card__img').alt = goodsCard.name;
     cardElement.querySelector('.card__price-value').textContent = goodsCard.price + ' ';
     cardElement.querySelector('.card__weight').textContent = ' ' + goodsCard.weight + ' Г';
@@ -66,26 +101,6 @@
     return fragment;
   };
 
-  catalogCardsElement.appendChild(createAllCards(goodsCards));
-
-  // При нажатии на кнопку избранного .card__btn-favorite в карточке товара, этой кнопке должен добавляться класс card__btn-favorite--selected, который помечал бы её как избранную
-  var btnFavProd = document.querySelectorAll('.card__btn-favorite');
-
-  var addFavProd = function (e) {
-    e.preventDefault();
-    var currentBtn = e.target;
-    currentBtn.classList.toggle('card__btn-favorite--selected');
-  };
-
-  for (var j = 0; j < btnFavProd.length; j++) {
-    btnFavProd[j].addEventListener('click', addFavProd);
-  }
-
-  // Убераем у блока catalog__cards класс catalog__cards--load
-  document.querySelector('.catalog__cards').classList.remove('catalog__cards--load');
-  // Скрываем при помощи класса visually-hidden блок catalog__load
-  document.querySelector('.catalog__load').classList.add('visually-hidden');
-
   // ТОВАРЫ В КОРЗИНЕ
   // алгоритм:
   // 1. В карточки товаров добавляем дата атрибут содержащий индекс в массиве
@@ -93,9 +108,6 @@
   // добавляем новое свойство - кол-во в корзине (orderedAmount);
   // удаляем ненужные свойства: amount, weight, rating, nutritionFacts.
   // 3. Условие: Если объект (товар) уже есть в массиве "корзина", то меняется только свойство "orderedAmount"
-
-  // Находим ВСЕ кнопки "Добавить в корзину"
-  var btnAddToCart = document.querySelectorAll('.card__btn');
 
   // функция изменения класса карточки в зависимости от текущего кол-ва товара (вид кнопки "Добавить +1")
   var changeGoodsCardClass = function (currentIndex) {
@@ -204,7 +216,6 @@
     if (goodsCards[currentCardIndex].amount !== 0) {
       addNewProductInCart(currentCardIndex, checkIsInCart(currentCardIndex));
     }
-    //   alert('Извините данного товара нет в наличии');
   };
 
   var checkIsInCart = function (currentIndex) {
@@ -240,7 +251,7 @@
       var productInCart = Object.assign({orderedAmount: 1}, goodsCards[currentIndex]);
       var inCartElement = inCartTemplate.cloneNode(true);
       inCartElement.querySelector('.card-order__title').textContent = productInCart.name;
-      inCartElement.querySelector('.card-order__img').src = productInCart.picture;
+      inCartElement.querySelector('.card-order__img').src = 'img/cards/' + productInCart.picture;
       inCartElement.querySelector('.card-order__img').alt = productInCart.name;
       inCartElement.querySelector('.card-order__price').textContent = productInCart.price + ' ₽';
       inCartElement.querySelector('.card-order__count').value = productInCart.orderedAmount;
@@ -263,9 +274,36 @@
     return cart;
   };
 
-  // обработчик события на кнопку "добавить в корзину"
-  for (var i = 0; i < btnAddToCart.length; i++) {
-    btnAddToCart[i].addEventListener('click', checkIsInStock);
-  }
+  // События для кнопок "Добавить +1" и "Избранное"
+  var addEventsForCardButtons = function () {
+    // Находим ВСЕ кнопки "Добавить в корзину"
+    var btnAddToCart = document.querySelectorAll('.card__btn');
+    // обработчик события на кнопку "добавить в корзину"
+    for (var k = 0; k < btnAddToCart.length; k++) {
+      btnAddToCart[k].addEventListener('click', checkIsInStock);
+    }
+    // При нажатии на кнопку избранного в карточке товара, этой кнопке должен добавляться класс card__btn-favorite--selected
+    var btnFavProd = document.querySelectorAll('.card__btn-favorite');
+    var addFavProd = function (e) {
+      e.preventDefault();
+      var currentBtn = e.target;
+      currentBtn.classList.toggle('card__btn-favorite--selected');
+    };
+    for (var j = 0; j < btnFavProd.length; j++) {
+      btnFavProd[j].addEventListener('click', addFavProd);
+    }
+    // кнопки раскрытия и скрытия состава
+    var ingredientsBtn = document.querySelectorAll('.card__btn-composition');
+    ingredientsBtn.forEach(function (item) {
+      item.addEventListener('click', function (evt) {
+        var currentCard = evt.target.closest('.catalog__card');
+        var ingredientsList = currentCard.querySelector('.card__composition');
+        ingredientsList.classList.toggle('card__composition--hidden');
+      });
+    });
+  };
+
+  // запускаем загрузку данных с сервера
+  window.backend.load(fillGoodsCards, onError);
 
 })();
