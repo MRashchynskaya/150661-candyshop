@@ -207,8 +207,8 @@
 
   var applyFilters = function () {
     var updateGoodsCollection = window.goods.updateGoodsCollection;
-    var favoriteList = window.goods.favoriteList;
-    filteredGoods = (favoriteInput.checked && favoriteList) ? favoriteList : window.goodsData;
+    var favoriteGoods = window.goods.favoriteGoods;
+    filteredGoods = (favoriteInput.checked && favoriteGoods) ? favoriteGoods : window.goodsData;
 
     activeFilters.forEach(function (func) {
       filteredGoods = func(filteredGoods);
@@ -223,8 +223,8 @@
     ) {
       var updateGoodsCollection = window.goods.updateGoodsCollection;
       var goods = window.goodsData;
-      var favoriteList = window.goods.favoriteList;
-      filteredGoods = (favoriteInput.checked && favoriteList) ? favoriteList : goods;
+      var favoriteGoods = window.goods.favoriteGoods;
+      filteredGoods = (favoriteInput.checked && favoriteGoods) ? favoriteGoods : goods;
 
       applyFilters();
 
@@ -233,7 +233,7 @@
         resetFilters();
         if (favoriteInput.checked) {
           availabilityInput.checked = false;
-          filteredGoods = (favoriteList) ? favoriteList : [];
+          filteredGoods = (favoriteGoods) ? favoriteGoods : [];
         } else {
           filteredGoods = goods;
         }
@@ -277,7 +277,7 @@
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
 
-    function onMouseMove(event) {
+    var onMouseMove = function (event) {
       var newLeft = event.clientX - shiftX - leftEdge; // координата левого края пина
 
       if (newLeft < minLeft) { // ограничиваем движение пина слева
@@ -298,12 +298,12 @@
       }
 
       applyFilters();
-    }
+    };
 
-    function onMouseUp() {
+    var onMouseUp = function () {
       document.removeEventListener('mouseup', onMouseUp);
       document.removeEventListener('mousemove', onMouseMove);
-    }
+    };
   };
 
   // добавляем обработчик нажатия левой кнопки на ЛЕВЫЙ пин

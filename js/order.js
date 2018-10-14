@@ -1,7 +1,8 @@
 'use strict';
 
 (function () {
-  // переменные для переключение вкладок способов доставки и оплаты товаров
+  // переменные для формы заказа товаров
+  var ESC_KEYCODE = 27;
   var deliveryToggleBtn = document.querySelectorAll('.deliver .toggle-btn__input');
   var deliveryStore = document.querySelector('.deliver__store');
   var deliveryCourier = document.querySelector('.deliver__courier');
@@ -13,6 +14,15 @@
   var deliveryStoreInputs = document.querySelectorAll('.deliver__store-list input');
   var deliveryStoreMetroList = document.querySelector('.deliver__store-list');
   var deliveryStoreMapImg = document.querySelector('.deliver__store-map-img');
+  var paymentCardInput = document.querySelector('#payment__card-number');
+  var paymentCardDateInput = document.querySelector('#payment__card-date');
+  var cvcInput = document.querySelector('#payment__card-cvc');
+  var paymentCardholderInput = document.querySelector('#payment__cardholder');
+  var paymentValidMessage = document.querySelector('.payment__card-status');
+  // переменные для отправки данных формы заказа на сервер
+  var form = document.querySelector('.form-order');
+  var modalSuccess = document.querySelector('.modal--success');
+  var modalError = document.querySelector('.modal--error');
 
   // по умолчанию блокируем поля данных для способа "Курьером"
   deliveryCourierAllInputs.forEach(function (itemInput) {
@@ -55,12 +65,6 @@
   });
 
   // проверка данных формы для платежной карты
-  var paymentCardInput = document.querySelector('#payment__card-number');
-  var paymentCardDateInput = document.querySelector('#payment__card-date');
-  var cvcInput = document.querySelector('#payment__card-cvc');
-  var paymentCardholderInput = document.querySelector('#payment__cardholder');
-  var paymentValidMessage = document.querySelector('.payment__card-status');
-
   var luhn = function (cardNumber) {
     if (cardNumber.length === 16) {
       var arr = cardNumber.split('').map(function (char, index) {
@@ -107,26 +111,13 @@
     paymentValidMessage.textContent = paymentCardInputCheck() && paymentCardDateInputCheck() && cvcInputCheck() && paymentCardholderInput.validity.valid ? 'Одобрен' : 'Не определён';
   };
 
-  // отправка данных из формы на сервер
-  var form = document.querySelector('.form-order');
-  var modalSuccess = document.querySelector('.modal--success');
-  var modalError = document.querySelector('.modal--error');
-  var ESC_KEYCODE = 27;
-
-  form.addEventListener('submit', function (evt) {
-    evt.preventDefault();
-    window.backend.upload(new FormData(form), onSucces, onError);
-    evt.preventDefault();
-  });
-
+  // отправка данных формы заказа на сервер
   var onSucces = function () {
     modalSuccess.classList.remove('modal--hidden');
-
     var modalClose = modalSuccess.querySelector('.modal__close');
     modalClose.addEventListener('click', function () {
       modalSuccess.classList.add('modal--hidden');
     });
-
     document.addEventListener('keydown', function (evt) {
       if (evt.keyCode === ESC_KEYCODE) {
         modalSuccess.classList.add('modal--hidden');
@@ -136,12 +127,10 @@
 
   var onError = function () {
     modalError.classList.remove('modal--hidden');
-
     var modalClose = modalError.querySelector('.modal__close');
     modalClose.addEventListener('click', function () {
       modalError.classList.add('modal--hidden');
     });
-
     document.addEventListener('keydown', function (evt) {
       if (evt.keyCode === ESC_KEYCODE) {
         modalError.classList.add('modal--hidden');
@@ -153,6 +142,11 @@
   paymentCardDateInput.addEventListener('input', checkCardStatus);
   cvcInput.addEventListener('input', checkCardStatus);
   paymentCardholderInput.addEventListener('input', checkCardStatus);
+  form.addEventListener('submit', function (evt) {
+    evt.preventDefault();
+    window.backend.upload(new FormData(form), onSucces, onError);
+    evt.preventDefault();
+  });
 
   // смена карты при выборе станции метро
   deliveryStoreMetroList.addEventListener('change', function (evt) {
