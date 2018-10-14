@@ -3,7 +3,7 @@
 (function () {
   var ESC_KEYCODE = 27;
   // Массив классов соответствующих value рейтинга
-  var ratingClasses = ['stars__rating--one', 'stars__rating--two', 'stars__rating--three', 'stars__rating--four', 'stars__rating--five'];
+  var RATING_CLASSES = ['stars__rating--one', 'stars__rating--two', 'stars__rating--three', 'stars__rating--four', 'stars__rating--five'];
   // переменная-массив для объектов товаров в каталоге
   var goodsCards = [];
   // переменная-массив для объектов товаров в корзине
@@ -91,7 +91,7 @@
     cardElement.querySelector('.card__weight').textContent = ' ' + goodsCard.weight + ' Г';
     var ratingObject = goodsCard.rating;
     cardElement.querySelector('.stars__rating').classList.remove('stars__rating--five');
-    cardElement.querySelector('.stars__rating').classList.add(ratingClasses[ratingObject.value - 1]);
+    cardElement.querySelector('.stars__rating').classList.add(RATING_CLASSES[ratingObject.value - 1]);
     cardElement.querySelector('.star__count').textContent = ratingObject.number;
     var nutritionFactsObject = goodsCard.nutritionFacts;
     var containSugar = nutritionFactsObject.sugar ? 'Содержит сахар ' : 'Без сахара ';
