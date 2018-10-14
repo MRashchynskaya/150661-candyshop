@@ -2,6 +2,8 @@
 
 (function () {
   var ESC_KEYCODE = 27;
+  // Массив классов соответствующих value рейтинга
+  var ratingClasses = ['stars__rating--one', 'stars__rating--two', 'stars__rating--three', 'stars__rating--four', 'stars__rating--five'];
   // переменная-массив для объектов товаров в каталоге
   var goodsCards = [];
   // переменная-массив для объектов товаров в корзине
@@ -23,8 +25,6 @@
   var goodsCardsElement = document.querySelector('.goods__cards');
   // блок пустой корзины
   var goodsCardsEmpty = document.querySelector('.goods__card-empty');
-  // Массив классов соответствующих value рейтинга
-  var ratingClasses = ['stars__rating--one', 'stars__rating--two', 'stars__rating--three', 'stars__rating--four', 'stars__rating--five'];
   // Блок корзина в хедере страницы
   var headerCart = document.querySelector('.main-header__basket');
   var headerCartText;
@@ -33,7 +33,6 @@
   var errorPopup = document.querySelector('.modal--error');
   var errorPopupClose = errorPopup.querySelector('.modal__close');
   var errorMessage = errorPopup.querySelector('.modal__message');
-
   // для фильтра "избранное"
   var favoriteInput = document.querySelector('#filter-favorite');
   var favoriteAmountValue = favoriteInput.parentNode.querySelector('.input-btn__item-count');
@@ -336,7 +335,7 @@
 
   // запускаем загрузку данных с сервера
   window.backend.load(fillGoodsCards, onError);
-
+  // экспоритуем в глобальную область
   window.goods = {
     updateGoodsCollection: updateGoodsCollection,
     favoriteGoods: favoriteGoods
